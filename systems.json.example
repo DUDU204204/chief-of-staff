@@ -1,0 +1,33 @@
+{
+  "_comment": "Register your own dashboards, services, and tools here. Copy to systems.json and edit. Re-run discover.py to load.",
+  "systems": [
+    {
+      "slug": "my-crm",
+      "name": "ה-CRM שלי",
+      "category": "dashboard",
+      "description": "Pipedrive / HubSpot / Monday / etc.",
+      "url": "https://app.pipedrive.com",
+      "room": "operations",
+      "icon": "📇"
+    },
+    {
+      "slug": "local-banking-dashboard",
+      "name": "דשבורד בנקאות מקומי",
+      "category": "dashboard",
+      "description": "שרת FastAPI מקומי",
+      "url": "http://127.0.0.1:8000",
+      "port": 8000,
+      "room": "finance",
+      "icon": "🏦"
+    },
+    {
+      "slug": "google-analytics",
+      "name": "Google Analytics",
+      "category": "integration",
+      "description": "Web analytics",
+      "url": "https://analytics.google.com",
+      "room": "marketing",
+      "icon": "📊"
+    }
+  ]
+}

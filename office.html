@@ -1,0 +1,1379 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Chief of Staff · המשרד שלי</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg-deep: #060912;
+    --bg-mid: #0f1424;
+    --bg-soft: #1a2138;
+    --bg-room: #2a2f47;
+    --accent: #ffd166;
+    --accent-soft: rgba(255,209,102,0.15);
+    --text: #e8e9f3;
+    --text-dim: #9aa0b8;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #ef4444;
+    --blue: #60a5fa;
+    --purple: #c084fc;
+
+    --wall-light: #4a5478;
+    --wall-dark: #1a1f30;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg-deep); color: var(--text); font-family: 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif; overflow: hidden; }
+
+  /* ─── Header bar ─── */
+  #topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 56px;
+    background: linear-gradient(180deg, #14192e 0%, #0a0e1a 100%);
+    border-bottom: 2px solid #2c3350;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.6);
+    display: flex; align-items: center;
+    padding: 0 20px; z-index: 100; gap: 24px;
+  }
+  #topbar .title { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  #topbar .stats { display: flex; gap: 14px; font-size: 12px; color: var(--text-dim); }
+  #topbar .stat b { color: var(--text); font-weight: 700; font-size: 13px; }
+  #topbar .actions { margin-inline-start: auto; display: flex; gap: 8px; }
+  #topbar button {
+    background: var(--bg-soft); color: var(--text); border: 1px solid #2c3350;
+    padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px;
+    transition: all 0.15s;
+  }
+  #topbar button:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  /* ─── Office floor ─── */
+  #office {
+    position: absolute; top: 56px; left: 0; right: 0; bottom: 0;
+    overflow: auto;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, #1a2138 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 50% 100%, #1a1f30 0%, transparent 60%),
+      var(--bg-deep);
+  }
+  #floor {
+    position: relative; margin: 30px auto; width: 1320px; min-height: 920px;
+  }
+
+  /* ─── Room ─── */
+  .room {
+    position: absolute;
+    border-radius: 6px;
+    padding: 38px 14px 14px;
+    overflow: hidden;
+    transition: filter 0.25s;
+    /* 3D wall illusion */
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 6%, transparent 100%),
+      linear-gradient(180deg, var(--wall-light) 0%, var(--wall-light) 24px, transparent 24px),
+      linear-gradient(180deg, var(--wall-dark) 0%, var(--wall-dark) 26px, transparent 26px);
+    border: 3px solid var(--wall-dark);
+    border-top: 0;
+    box-shadow:
+      0 8px 24px rgba(0,0,0,0.5),
+      inset 0 -3px 0 rgba(0,0,0,0.4),
+      inset 3px 0 0 rgba(0,0,0,0.2),
+      inset -3px 0 0 rgba(0,0,0,0.2);
+  }
+  .room::before {
+    /* room nameplate */
+    content: attr(data-label);
+    position: absolute; top: 0; left: 0; right: 0; height: 26px;
+    background: linear-gradient(180deg, #2a3148 0%, #1a1f30 100%);
+    color: var(--accent);
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+    display: flex; align-items: center; justify-content: center;
+    border-bottom: 2px solid var(--accent);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.6);
+    z-index: 2;
+  }
+  .room::after {
+    /* floor texture */
+    content: '';
+    position: absolute; top: 26px; left: 3px; right: 3px; bottom: 3px;
+    z-index: 0;
+    background-color: var(--floor-color, #2a2f47);
+    background-image: var(--floor-pattern, none);
+    background-size: var(--floor-size, 30px 30px);
+    opacity: 0.4;
+  }
+  .room:hover { filter: brightness(1.1); }
+  .room.dim { filter: brightness(0.7) saturate(0.6); }
+
+  .room-floor-wood    { --floor-color: #3a2a1a; --floor-pattern: repeating-linear-gradient(90deg, #2a1a0a 0, #2a1a0a 1px, #3a2a1a 1px, #3a2a1a 40px), repeating-linear-gradient(0deg, transparent 0, transparent 19px, #2a1a0a 19px, #2a1a0a 20px); --floor-size: 40px 40px; }
+  .room-floor-tech    { --floor-color: #1a2138; --floor-pattern: repeating-linear-gradient(0deg, transparent 0, transparent 19px, #2a3148 19px, #2a3148 20px), repeating-linear-gradient(90deg, transparent 0, transparent 19px, #2a3148 19px, #2a3148 20px); }
+  .room-floor-carpet  { --floor-color: #3a1f2e; --floor-pattern: repeating-linear-gradient(45deg, #4a2a3e 0, #4a2a3e 12px, transparent 12px, transparent 24px); --floor-size: 24px 24px; }
+  .room-floor-stone   { --floor-color: #2a3148; --floor-pattern: repeating-linear-gradient(0deg, #323a5a 0, #323a5a 14px, #1a1f2e 14px, #1a1f2e 16px), repeating-linear-gradient(90deg, #323a5a 0, #323a5a 14px, transparent 14px, transparent 16px); --floor-size: 30px 30px; }
+  .room-floor-grid    { --floor-color: #1a3a2e; --floor-pattern: repeating-linear-gradient(0deg, transparent 0, transparent 11px, rgba(52,211,153,0.15) 11px, rgba(52,211,153,0.15) 12px), repeating-linear-gradient(90deg, transparent 0, transparent 11px, rgba(52,211,153,0.15) 11px, rgba(52,211,153,0.15) 12px); }
+  .room-floor-marble  { --floor-color: #2a2548; --floor-pattern: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(255,255,255,0.04) 0%, transparent 40%); --floor-size: 80px 80px; }
+  .room-floor-warm    { --floor-color: #3a2a1f; --floor-pattern: repeating-linear-gradient(45deg, rgba(255,209,102,0.06) 0, rgba(255,209,102,0.06) 20px, transparent 20px, transparent 40px); }
+
+  .room-body {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 68px);
+    grid-auto-rows: 88px;
+    gap: 4px;
+    max-height: calc(100% - 6px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    align-content: flex-start;
+    padding: 4px 2px 4px 0;
+  }
+  .room-body::-webkit-scrollbar { width: 4px; }
+  .room-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+  /* ─── Sprite: a character/object in a room ─── */
+  .sprite {
+    width: 64px; height: 84px;
+    position: relative;
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center;
+    transition: transform 0.15s;
+    animation: idle-bob 2.5s ease-in-out infinite;
+  }
+  .sprite:nth-child(2n) { animation-delay: -0.5s; }
+  .sprite:nth-child(3n) { animation-delay: -1s; }
+  .sprite:nth-child(5n) { animation-delay: -1.5s; }
+  @keyframes idle-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+  .sprite:hover {
+    animation-play-state: paused;
+    transform: translateY(-4px) scale(1.08);
+    z-index: 10;
+  }
+  .sprite .s-icon-wrap {
+    position: relative;
+    width: 48px; height: 56px;
+    flex-shrink: 0;
+  }
+  .sprite svg.s-icon {
+    width: 48px; height: 56px;
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.5));
+  }
+  .sprite .s-favicon {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px; height: 20px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.9);
+    padding: 1px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  /* Emoji icon overlay (when no favicon - e.g., local dashboards) */
+  .sprite .s-emoji {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 2;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
+  }
+  .sprite .s-emoji.hidden { display: none; }
+  /* Permanent label under sprite */
+  .sprite .s-label {
+    font-size: 9px;
+    color: var(--text);
+    background: rgba(0,0,0,0.6);
+    padding: 2px 5px;
+    border-radius: 3px;
+    max-width: 64px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 2px;
+    text-align: center;
+    pointer-events: none;
+    line-height: 1.2;
+  }
+  .sprite:hover .s-label {
+    background: rgba(255,209,102,0.2);
+    color: var(--accent);
+    max-width: none;
+    z-index: 11;
+    position: relative;
+  }
+  .sprite .s-status {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-deep);
+    z-index: 3;
+  }
+  .sprite .s-label {
+    position: absolute;
+    bottom: -2px;
+    font-size: 9px;
+    color: var(--text-dim);
+    background: rgba(0,0,0,0.7);
+    padding: 1px 4px;
+    border-radius: 3px;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .sprite:hover .s-label {
+    opacity: 1;
+    z-index: 11;
+  }
+  .sprite .s-status {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-deep);
+  }
+  .s-status.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .s-status.yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); animation: blink 1.5s infinite; }
+  .s-status.red { background: var(--red); box-shadow: 0 0 8px var(--red); animation: blink 0.8s infinite; }
+  .s-status.unknown { background: var(--text-dim); }
+  .s-status.info { background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+  .s-status.warning { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+  .s-status.critical { background: var(--red); box-shadow: 0 0 8px var(--red); animation: blink 0.8s infinite; }
+  /* live agent activity states */
+  .s-status.thinking { background: #4ad8ff; box-shadow: 0 0 8px #4ad8ff; animation: pulse 1.1s ease-in-out infinite; }
+  .s-status.working { background: #a855f7; box-shadow: 0 0 10px #a855f7; animation: pulse 0.9s ease-in-out infinite; }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: 0.6; }
+  }
+  /* halo around the sprite when its agent is currently active */
+  .sprite.is-active::before {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 8px;
+    border: 1px solid rgba(74,216,255,0.6);
+    box-shadow: 0 0 14px rgba(74,216,255,0.4) inset, 0 0 14px rgba(74,216,255,0.3);
+    animation: halo 1.6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .sprite.is-handoff-from::before {
+    border-color: rgba(168,85,247,0.7);
+    box-shadow: 0 0 14px rgba(168,85,247,0.45) inset, 0 0 16px rgba(168,85,247,0.4);
+  }
+  @keyframes halo {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  /* SVG overlay for handoff lines drawn between sprites */
+  #handoff-overlay {
+    position: fixed; inset: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 20;
+  }
+  #handoff-overlay .handoff-line {
+    fill: none;
+    stroke: #a855f7;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 5 6;
+    filter: drop-shadow(0 0 4px rgba(168,85,247,0.7));
+    animation: dash-flow 0.9s linear infinite, fade-out 4s ease-out forwards;
+  }
+  @keyframes dash-flow { to { stroke-dashoffset: -22; } }
+  @keyframes fade-out  { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+  /* Activity feed (war room) — bottom-right floating panel */
+  #activity-feed {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    width: 340px;
+    max-height: 320px;
+    background: rgba(8,12,22,0.92);
+    border: 1px solid rgba(74,216,255,0.4);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 18px rgba(74,216,255,0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 10px 12px 6px;
+    z-index: 30;
+    font-size: 11px;
+    color: var(--text-dim);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  #activity-feed .af-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px; padding-bottom: 5px;
+    border-bottom: 1px solid rgba(74,216,255,0.15);
+  }
+  #activity-feed .af-title {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #4ad8ff;
+    font-weight: 700;
+  }
+  #activity-feed .af-toggle {
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 14px;
+    user-select: none;
+  }
+  #activity-feed.collapsed { max-height: 36px; }
+  #activity-feed.collapsed .af-list { display: none; }
+  #activity-feed .af-list {
+    overflow-y: auto;
+    max-height: 270px;
+    display: flex; flex-direction: column; gap: 6px;
+    padding-right: 4px;
+  }
+  #activity-feed .af-row {
+    padding: 6px 8px;
+    background: rgba(74,216,255,0.05);
+    border-right: 2px solid rgba(74,216,255,0.5);
+    border-radius: 4px;
+    line-height: 1.4;
+  }
+  #activity-feed .af-row.kind-handoff   { border-right-color: #a855f7; background: rgba(168,85,247,0.06); }
+  #activity-feed .af-row.kind-escalate  { border-right-color: var(--red); background: rgba(239,68,68,0.06); }
+  #activity-feed .af-row.kind-report    { border-right-color: var(--green); background: rgba(16,185,129,0.06); }
+  #activity-feed .af-row.kind-ask       { border-right-color: var(--yellow); background: rgba(251,191,36,0.06); }
+  #activity-feed .af-row.kind-standup   { border-right-color: #4ad8ff; }
+  #activity-feed .af-row.kind-system    { opacity: 0.65; }
+  #activity-feed .af-row .af-when {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    font-size: 9px;
+    margin-right: 6px;
+  }
+  #activity-feed .af-row .af-from { color: #4ad8ff; font-weight: 600; }
+  #activity-feed .af-row .af-arrow { color: var(--text-dim); margin: 0 4px; }
+  #activity-feed .af-row .af-to { color: #a855f7; font-weight: 600; }
+  #activity-feed .af-row .af-title { color: var(--text); margin-top: 2px; }
+  #activity-feed .af-empty { color: var(--text-dim); font-style: italic; padding: 6px; }
+
+  /* Gear spinning */
+  .gear-spin { animation: gear-rotate 8s linear infinite; transform-origin: center; }
+  @keyframes gear-rotate {
+    from { transform: rotate(0); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* ─── Boss desk in the lobby ─── */
+  .boss-area {
+    grid-column: 1 / -1;
+    grid-row: span 2;
+    background: linear-gradient(180deg, #3d2a14 0%, #1a1408 100%);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex; gap: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255,209,102,0.2);
+    position: relative;
+    align-items: center;
+    transition: all 0.2s;
+    overflow: visible;
+    min-height: 100px;
+  }
+  .boss-area:hover { background: linear-gradient(180deg, #4d3520 0%, #2a200f 100%); }
+  .boss-area .boss-char {
+    width: 70px; height: 80px; flex-shrink: 0;
+    animation: idle-bob 2s ease-in-out infinite;
+  }
+  .boss-area .boss-char svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)); }
+  .boss-area .boss-text { flex: 1; }
+  .boss-area .boss-name { font-weight: 700; font-size: 14px; color: var(--accent); }
+  .boss-area .boss-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; line-height: 1.5; }
+  .boss-area .boss-cta {
+    margin-top: 6px; display: inline-block;
+    background: var(--accent); color: var(--bg-deep);
+    padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700;
+  }
+  /* Speech bubble - inside boss-area, pointing right toward the character */
+  .boss-bubble {
+    position: absolute; top: 10px; right: 96px;
+    background: white; color: #0a0e1a;
+    padding: 8px 12px; border-radius: 12px;
+    font-size: 11px; max-width: 200px; line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    animation: bubble-fade 8s infinite;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .boss-bubble::after {
+    content: '';
+    position: absolute;
+    right: -8px; top: 14px;
+    width: 0; height: 0; border-style: solid;
+    border-width: 6px 0 6px 8px;
+    border-color: transparent transparent transparent white;
+  }
+  @keyframes bubble-fade {
+    0%, 90%, 100% { opacity: 0; transform: translateY(4px); }
+    10%, 80% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── Side panel ─── */
+  #panel {
+    position: fixed; top: 56px; left: 0; bottom: 0; width: 380px;
+    background: linear-gradient(180deg, #14192e 0%, #0a0e1a 100%);
+    border-inline-end: 2px solid var(--accent);
+    transform: translateX(-100%);
+    transition: transform 0.25s;
+    z-index: 50;
+    display: flex; flex-direction: column;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+  }
+  #panel.open { transform: translateX(0); }
+  #panel header {
+    padding: 16px 18px;
+    border-bottom: 1px solid #2c3350;
+    display: flex; align-items: center; gap: 12px;
+    background: linear-gradient(180deg, #1a2138 0%, transparent 100%);
+  }
+  #panel header .pi { width: 48px; height: 48px; }
+  #panel header .pi svg { width: 100%; height: 100%; }
+  #panel header h2 { margin: 0; font-size: 16px; font-weight: 600; }
+  #panel header .ph-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  #panel header button {
+    margin-inline-start: auto; background: transparent;
+    border: 1px solid #2c3350; color: var(--text-dim);
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #panel header button:hover { color: var(--text); border-color: var(--text); }
+  #panel .panel-body { padding: 16px 18px; overflow-y: auto; flex: 1; font-size: 13px; line-height: 1.55; }
+  #panel .field { margin-bottom: 14px; }
+  #panel .field label {
+    display: block; font-size: 10px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 4px;
+  }
+  #panel .field .v { word-break: break-all; }
+  #panel .field code {
+    background: var(--bg-deep); padding: 2px 6px; border-radius: 3px;
+    font-size: 11px; font-family: 'SF Mono', monospace;
+  }
+  #panel .actions { padding: 12px 18px; border-top: 1px solid #2c3350; display: flex; gap: 8px; }
+  #panel .actions button {
+    flex: 1; padding: 10px; background: var(--accent); color: #0a0e1a;
+    border: 0; border-radius: 6px; cursor: pointer; font-weight: 600;
+  }
+  #panel .actions button.secondary {
+    background: var(--bg-soft); color: var(--text); border: 1px solid #2c3350;
+  }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 500;
+  }
+  .badge-green { background: rgba(52, 211, 153, 0.15); color: var(--green); }
+  .badge-yellow { background: rgba(251, 191, 36, 0.15); color: var(--yellow); }
+  .badge-red { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+  .badge-info { background: rgba(96, 165, 250, 0.15); color: var(--blue); }
+
+  /* ─── Observations strip ─── */
+  #observations-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, #14192e 0%, #0a0e1a 100%);
+    border-top: 2px solid var(--accent);
+    max-height: 280px; overflow-y: auto;
+    transform: translateY(calc(100% - 40px));
+    transition: transform 0.25s;
+    z-index: 40;
+  }
+  #observations-bar.open { transform: translateY(0); }
+  #obs-handle {
+    height: 40px; cursor: pointer; display: flex; align-items: center;
+    padding: 0 20px; gap: 12px; background: linear-gradient(180deg, #2a3148 0%, #1a1f30 100%);
+    border-bottom: 1px solid #2c3350; font-size: 13px; font-weight: 600;
+  }
+  #obs-handle .obs-pill {
+    background: var(--red); color: white; padding: 2px 10px; border-radius: 12px;
+    font-size: 11px; font-weight: 700;
+  }
+  #obs-handle .obs-pill.zero { background: var(--green); }
+  #obs-list { padding: 10px 20px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .obs {
+    display: flex; gap: 10px; padding: 10px 12px;
+    background: var(--bg-soft); border-radius: 6px;
+    border-inline-start: 3px solid var(--blue);
+    font-size: 12px;
+  }
+  .obs.warning { border-inline-start-color: var(--yellow); }
+  .obs.critical { border-inline-start-color: var(--red); }
+  .obs .obs-title { font-weight: 600; margin-bottom: 2px; }
+  .obs .obs-body { color: var(--text-dim); }
+  .obs .obs-action {
+    margin-inline-start: auto; display: flex; gap: 6px; flex-shrink: 0;
+  }
+  .obs .obs-action button {
+    background: transparent; border: 1px solid #3a4060; color: var(--text-dim);
+    padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px;
+  }
+  .obs .obs-action button:hover { color: var(--text); border-color: var(--text); }
+  .obs .obs-action button.heal { background: var(--green); color: #0a0e1a; border-color: var(--green); font-weight: 700; }
+  .obs .obs-action button.heal:hover { background: #4ae4a3; }
+
+  /* ─── Chat modal ─── */
+  #chat-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
+    display: none; align-items: center; justify-content: center;
+  }
+  #chat-modal.open { display: flex; }
+  #chat-box {
+    width: 560px; max-height: 80vh; background: linear-gradient(180deg, #14192e 0%, #0a0e1a 100%);
+    border: 2px solid var(--accent); border-radius: 12px; padding: 20px;
+    display: flex; flex-direction: column;
+    box-shadow: 0 10px 40px rgba(255,209,102,0.2);
+  }
+  #chat-box h3 { margin: 0 0 12px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+  #chat-history { flex: 1; overflow-y: auto; padding: 8px 0; min-height: 200px; max-height: 50vh; }
+  .chat-msg { padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; max-width: 80%; }
+  .chat-msg.user { background: var(--bg-soft); margin-inline-start: auto; }
+  .chat-msg.assistant { background: var(--accent-soft); border: 1px solid var(--accent); }
+  .chat-msg .role { font-size: 10px; color: var(--text-dim); margin-bottom: 4px; }
+  #chat-input-row { display: flex; gap: 8px; margin-top: 12px; }
+  #chat-input {
+    flex: 1; background: var(--bg-deep); border: 1px solid #2c3350;
+    color: var(--text); padding: 10px; border-radius: 6px; font-size: 13px;
+    font-family: inherit;
+  }
+  #chat-send { background: var(--accent); color: var(--bg-deep); border: 0; padding: 0 18px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+  /* Toast */
+  #toast {
+    position: fixed; top: 70px; right: 20px;
+    background: var(--bg-soft);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 14px; font-size: 13px;
+    transform: translateX(120%);
+    transition: transform 0.3s;
+    z-index: 300;
+  }
+  #toast.show { transform: translateX(0); }
+  #toast.error { border-color: var(--red); color: var(--red); }
+  #toast.success { border-color: var(--green); color: var(--green); }
+
+  /* Loading spinner inside chat */
+  .typing { display: flex; gap: 4px; padding: 8px 0; opacity: 0.7; }
+  .typing span {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    animation: typing-bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* ──────────── Responsive ──────────── */
+  /* Desktop scaling - keep the office layout, just shrink */
+  @media (max-width: 1450px) {
+    #floor { transform: scale(0.85); transform-origin: top center; }
+    #office { padding-bottom: 200px; }
+  }
+  @media (max-width: 1200px) {
+    #floor { transform: scale(0.7); }
+  }
+  /* Tablet - reduce topbar density */
+  @media (max-width: 1000px) {
+    #topbar { padding: 0 10px; gap: 10px; }
+    #topbar .title span { display: none; }
+    #topbar .stats { font-size: 11px; gap: 8px; flex-wrap: wrap; }
+    #topbar button { padding: 6px 10px; font-size: 12px; }
+    #floor { transform: scale(0.55); }
+  }
+  /* Mobile - completely different layout: list view */
+  @media (max-width: 760px) {
+    #office { background: var(--bg-deep); padding: 10px; }
+    #floor {
+      transform: none; width: 100%; min-height: auto;
+      display: flex; flex-direction: column; gap: 12px; margin: 0;
+    }
+    .room {
+      position: static !important;
+      width: 100% !important; height: auto !important;
+      min-height: 140px;
+      padding: 38px 10px 12px;
+    }
+    .room-body {
+      grid-template-columns: repeat(auto-fill, 52px);
+      grid-auto-rows: 60px;
+      max-height: none;
+    }
+    .boss-area { grid-column: 1 / -1; }
+    #panel { width: 92vw; }
+    #chat-box { width: 92vw; max-height: 90vh; }
+    #topbar .stats { display: none; }
+    #observations-bar { max-height: 60vh; }
+  }
+  @media (max-width: 500px) {
+    .sprite { width: 48px; height: 56px; }
+    .sprite svg.s-icon { width: 42px; height: 50px; }
+    .sprite .s-label { font-size: 8px; max-width: 50px; }
+    .boss-area .boss-char { width: 56px; height: 64px; }
+    .boss-bubble { font-size: 10px; max-width: 150px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="title">
+    <svg width="28" height="32" viewBox="0 0 32 40"><use href="#char-boss"/></svg>
+    <span>המשרד שלי</span>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="actions">
+    <button onclick="location.href='/mission-control'">🎯 Mission Control</button>
+    <button onclick="cmdk && cmdk.open()" title="⌘K">⌘K חיפוש</button>
+    <button id="btn-chat">💬 דבר איתי</button>
+    <button id="btn-insights">🌟 תובנות שבועיות</button>
+    <button id="btn-refresh">🔄 רענן</button>
+  </div>
+</div>
+
+<div id="office">
+  <!-- SVG sprite definitions loaded here -->
+  <div id="sprite-defs"></div>
+  <div id="floor"></div>
+</div>
+
+<aside id="panel">
+  <header>
+    <div class="pi" id="p-icon"></div>
+    <div>
+      <h2 id="p-title">—</h2>
+      <div class="ph-sub" id="p-sub">—</div>
+    </div>
+    <button id="p-close">✕</button>
+  </header>
+  <div class="panel-body" id="p-body"></div>
+  <div class="actions" id="p-actions"></div>
+</aside>
+
+<div id="observations-bar">
+  <div id="obs-handle">
+    <svg width="20" height="20" viewBox="0 0 32 40"><use href="#obj-bulb"/></svg>
+    <span>תובנות והתראות</span>
+    <span class="obs-pill zero" id="obs-count">0</span>
+    <span style="margin-inline-start:auto; color: var(--text-dim); font-size: 11px;">לחץ להרחבה ↑</span>
+  </div>
+  <div id="obs-list"></div>
+</div>
+
+<div id="chat-modal">
+  <div id="chat-box">
+    <h3>
+      <svg width="28" height="32" viewBox="0 0 32 40"><use href="#char-boss"/></svg>
+      ראש המטה
+    </h3>
+    <div id="chat-history"></div>
+    <div id="chat-input-row">
+      <input id="chat-input" placeholder="שאל אותי על המערכת..." />
+      <button id="chat-send">שלח</button>
+    </div>
+    <p style="font-size: 11px; color: var(--text-dim); margin-top: 8px;" id="chat-hint">
+      ראש המטה רץ דרך Claude CLI ועונה ישירות כאן. תשובה לוקחת 10-60 שניות.
+    </p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/static/command-palette.js" defer></script>
+
+<svg id="handoff-overlay" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<div id="activity-feed">
+  <div class="af-head">
+    <span class="af-title">⚡ War Room</span>
+    <span class="af-toggle" onclick="document.getElementById('activity-feed').classList.toggle('collapsed')">▾</span>
+  </div>
+  <div class="af-list" id="af-list"></div>
+</div>
+
+<script>
+const API = window.location.origin;
+const $ = (sel) => document.querySelector(sel);
+
+const state = {
+  data: null,
+  currentRoom: null,
+  spriteEls: {},             // slug → DOM element, populated by placeSprite()
+  lastMessagesTs: null,      // ISO ts of newest message we've already animated
+  seenMessageIds: new Set(), // dedupe across polls
+};
+
+const FLOOR_BY_ROOM = {
+  lobby: 'marble',
+  finance: 'wood',
+  clients: 'carpet',
+  'agents-floor': 'tech',
+  'skills-user': 'tech',
+  'plugin-skills': 'carpet',
+  processes: 'grid',
+  integrations: 'stone',
+  insights: 'warm',
+};
+
+const SPRITE_FOR = {
+  // by category
+  dashboard: 'obj-monitor',
+  mcp: 'obj-plug',
+  integration: 'obj-server',
+  tool: 'obj-server',
+  data: 'obj-server',
+  // by kind
+  agent: 'char-agent',
+  skill: 'char-skill',
+  // others
+  process: 'obj-gear',
+  credential: 'obj-key',
+  observation: 'obj-bulb',
+};
+
+// Build boss quotes dynamically from real state - no hardcoded numbers
+function buildBossQuotes(d) {
+  const quotes = [];
+  const c = d.counts || {};
+  const obs = d.observations || [];
+
+  if (c.open_observations > 0) {
+    quotes.push(`יש לך ${c.open_observations} התראות פתוחות. רוצה לעבור עליהן?`);
+  } else {
+    quotes.push("אין התראות פתוחות. הכל שקט.");
+  }
+
+  const redSystems = (d.systems || []).filter(s => s.status === 'red');
+  const yellowSystems = (d.systems || []).filter(s => s.status === 'yellow');
+  if (redSystems.length > 0) {
+    const names = redSystems.slice(0,2).map(s => s.name).join(', ');
+    quotes.push(`🔴 ${redSystems.length} מערכות אדומות: ${names}`);
+  }
+  if (yellowSystems.length > 0) {
+    const s = yellowSystems[0];
+    quotes.push(`🟡 ${s.name} - ${s.status_note || 'לא מגיב'}`);
+  }
+
+  const credIssues = (d.credentials || []).filter(cr => cr.severity && cr.severity !== 'ok');
+  if (credIssues.length > 0) {
+    const cr = credIssues[0];
+    quotes.push(`🔑 ${cr.provider}: ${cr.last_balance || cr.severity}`);
+  }
+
+  // Recent insight from observations
+  const recentInsight = obs.find(o => o.kind === 'insight' || o.kind === 'pattern' || o.kind === 'idea');
+  if (recentInsight) {
+    const title = recentInsight.title.length > 60 ? recentInsight.title.slice(0,60) + '…' : recentInsight.title;
+    quotes.push(`💡 ${title}`);
+  }
+
+  // Recent alert
+  const alert = obs.find(o => o.kind === 'alert');
+  if (alert) {
+    const title = alert.title.length > 60 ? alert.title.slice(0,60) + '…' : alert.title;
+    quotes.push(`⚠️ ${title}`);
+  }
+
+  quotes.push(`${c.systems || 0} מערכות · ${c.agents || 0} סוכנים · ${c.skills || 0} סקילים · ${c.processes || 0} תהליכים`);
+
+  if (d.memory_count > 0) {
+    quotes.push(`אני זוכר ${d.memory_count} עובדות עליך. שאל "מה אתה זוכר עליי?"`);
+  }
+
+  return quotes;
+}
+
+async function fetchJSON(path, opts = {}) {
+  const r = await fetch(API + path, opts);
+  return r.json();
+}
+
+function statusClass(s) {
+  return ({green:'green', yellow:'yellow', red:'red'})[s] || 'unknown';
+}
+
+async function loadSprites() {
+  const r = await fetch('/static/sprites.svg');
+  const text = await r.text();
+  $('#sprite-defs').innerHTML = text;
+}
+
+function toast(msg, type = 'info') {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = type;
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ─── War Room: agent_messages — feed + sprite halo + handoff line ─── */
+const KIND_LABEL = {
+  handoff: 'העביר ל',
+  ask: 'שואל את',
+  escalate: 'מסלים ל',
+  report: 'מדווח ל',
+  standup: 'standup',
+  system: 'system',
+};
+
+function formatRelativeTime(iso) {
+  if (!iso) return '';
+  const t = Date.parse(iso.endsWith('Z') ? iso : iso + 'Z');
+  if (!t) return iso;
+  const diff = Math.floor((Date.now() - t) / 1000);
+  if (diff < 60) return `${diff}s`;
+  if (diff < 3600) return `${Math.floor(diff/60)}m`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h`;
+  return `${Math.floor(diff/86400)}d`;
+}
+
+function renderActivityFeed(messages) {
+  const list = $('#af-list');
+  if (!list) return;
+  if (!messages || messages.length === 0) {
+    list.innerHTML = '<div class="af-empty">שקט כרגע. אין handoffs פעילים.</div>';
+    return;
+  }
+  list.innerHTML = messages.slice(0, 12).map(m => {
+    const kindClass = `kind-${m.kind || 'system'}`;
+    const fromName = m.from_agent || '—';
+    const toName = m.to_agent || (m.kind === 'standup' ? 'all' : '—');
+    const arrowLabel = KIND_LABEL[m.kind] || '→';
+    return `
+      <div class="af-row ${kindClass}">
+        <span class="af-when">${formatRelativeTime(m.ts)}</span>
+        <span class="af-from">${fromName}</span>
+        <span class="af-arrow">${arrowLabel}</span>
+        <span class="af-to">${toName}</span>
+        ${m.title ? `<div class="af-title">${m.title}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function pulseAgent(slug, kind) {
+  if (!slug) return;
+  const el = state.spriteEls[slug];
+  if (!el) return;
+  el.classList.remove('is-active', 'is-handoff-from');
+  // restart animation
+  void el.offsetWidth;
+  el.classList.add(kind === 'handoff' ? 'is-handoff-from' : 'is-active');
+  setTimeout(() => {
+    el.classList.remove('is-active', 'is-handoff-from');
+  }, 4000);
+}
+
+function drawHandoffLine(fromSlug, toSlug) {
+  if (!fromSlug || !toSlug) return;
+  const a = state.spriteEls[fromSlug];
+  const b = state.spriteEls[toSlug];
+  if (!a || !b) return;
+  const ar = a.getBoundingClientRect();
+  const br = b.getBoundingClientRect();
+  const x1 = ar.left + ar.width / 2;
+  const y1 = ar.top + ar.height / 2;
+  const x2 = br.left + br.width / 2;
+  const y2 = br.top + br.height / 2;
+  // Bezier control point — bowed upward
+  const cx = (x1 + x2) / 2;
+  const cy = Math.min(y1, y2) - 60;
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('class', 'handoff-line');
+  path.setAttribute('d', `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`);
+  $('#handoff-overlay').appendChild(path);
+  setTimeout(() => path.remove(), 4200);
+}
+
+async function pollAgentMessages() {
+  try {
+    const url = state.lastMessagesTs
+      ? `/api/agents/messages?since=${encodeURIComponent(state.lastMessagesTs)}`
+      : `/api/agents/messages?limit=20`;
+    const messages = await fetchJSON(url);
+    if (!messages || !messages.length) return;
+    // messages come in DESC; render newest first in the feed by merging with cache
+    state.messagesCache = state.messagesCache || [];
+    const fresh = messages.filter(m => !state.seenMessageIds.has(m.id));
+    for (const m of fresh) state.seenMessageIds.add(m.id);
+    state.messagesCache = [...fresh, ...state.messagesCache].slice(0, 40);
+    renderActivityFeed(state.messagesCache);
+    // Animate handoff/pulse for newest first
+    // (process in chronological order so the most recent shows last)
+    for (const m of fresh.slice().reverse()) {
+      pulseAgent(m.from_agent, 'handoff');
+      if (m.to_agent) {
+        setTimeout(() => pulseAgent(m.to_agent, 'active'), 600);
+        drawHandoffLine(m.from_agent, m.to_agent);
+      }
+    }
+    state.lastMessagesTs = messages[0].ts; // newest
+  } catch (e) {
+    // silent — feed just stays static if polling fails
+  }
+}
+
+function render() {
+  const d = state.data;
+  if (!d) return;
+
+  // Topbar stats
+  $('#stats').innerHTML = `
+    <span class="stat"><b>${d.counts.systems}</b> מערכות</span>
+    <span class="stat"><b>${d.counts.agents}</b> סוכנים</span>
+    <span class="stat"><b>${d.counts.skills}</b> סקילים</span>
+    <span class="stat"><b>${d.counts.credentials}</b> מפתחות</span>
+    <span class="stat"><b>${d.counts.processes}</b> תהליכים</span>
+    <span class="stat" style="color:${d.counts.open_observations > 0 ? 'var(--yellow)' : 'var(--green)'}"><b>${d.counts.open_observations}</b> תובנות פתוחות</span>
+  `;
+
+  // Build rooms
+  const floor = $('#floor');
+  floor.innerHTML = '';
+  const CELL = 80;
+  for (const room of d.rooms) {
+    const el = document.createElement('div');
+    el.className = 'room room-floor-' + (FLOOR_BY_ROOM[room.slug] || 'tech');
+    el.dataset.label = `${room.icon || '🏛️'} ${room.name}`;
+    el.style.left = (room.x * CELL) + 'px';
+    el.style.top = (room.y * CELL) + 'px';
+    el.style.width = (room.width * CELL - 12) + 'px';
+    el.style.height = (room.height * CELL - 12) + 'px';
+
+    const body = document.createElement('div');
+    body.className = 'room-body';
+    body.id = `body-${room.slug}`;
+    el.appendChild(body);
+    floor.appendChild(el);
+
+    // Special: chief in the lobby
+    if (room.slug === 'lobby') {
+      const desk = document.createElement('div');
+      desk.className = 'boss-area';
+      const quotes = buildBossQuotes(d);
+      const firstQuote = quotes[Math.floor(Math.random()*quotes.length)];
+      desk.innerHTML = `
+        <div class="boss-bubble" id="boss-bubble">${firstQuote}</div>
+        <div class="boss-char">
+          <svg viewBox="0 0 32 40"><use href="#char-boss"/></svg>
+        </div>
+        <div class="boss-text">
+          <div class="boss-name">ראש המטה</div>
+          <div class="boss-sub">הסוכן שמכיר את כל המשרד. רואה כשלים, מציע רעיונות, זוכר הכל.</div>
+          <div class="boss-cta">💬 לחץ לדבר איתי</div>
+        </div>
+      `;
+      desk.onclick = openChat;
+      body.appendChild(desk);
+      // Store dynamic quotes for the rotator
+      state.bossQuotes = quotes;
+    }
+  }
+
+  // Extract favicon URL from a service URL
+  const faviconFor = (url) => {
+    if (!url) return null;
+    try {
+      const u = new URL(url);
+      // Skip local URLs
+      if (u.hostname === '127.0.0.1' || u.hostname === 'localhost' || u.protocol === 'file:') return null;
+      return `https://www.google.com/s2/favicons?domain=${u.hostname}&sz=64`;
+    } catch { return null; }
+  };
+
+  // Place sprites - always shows label below; uses favicon for public URLs, emoji fallback otherwise
+  const placeSprite = (room, opts) => {
+    const body = $(`#body-${room}`) || $('#body-lobby');
+    if (!body) return;
+    const el = document.createElement('div');
+    el.className = 'sprite';
+    const viewBox = opts.spriteId.startsWith('char-')
+      ? '0 0 32 40'
+      : (opts.spriteId === 'obj-gear' || opts.spriteId === 'obj-monitor' ? '0 0 40 40' : '0 0 32 40');
+    const favIcon = faviconFor(opts.faviconUrl);
+    let overlayHtml = '';
+    if (favIcon) {
+      overlayHtml = `<img class="s-favicon" src="${favIcon}" onerror="this.parentElement.querySelector('.s-emoji-fallback')?.classList.remove('hidden'); this.remove();" alt="">`;
+      // Add a hidden emoji fallback in case favicon fails to load
+      if (opts.emoji) {
+        overlayHtml += `<span class="s-emoji s-emoji-fallback hidden" style="display:none;">${opts.emoji}</span>`;
+      }
+    } else if (opts.emoji) {
+      overlayHtml = `<span class="s-emoji">${opts.emoji}</span>`;
+    }
+    el.innerHTML = `
+      <div class="s-icon-wrap">
+        <svg class="s-icon" viewBox="${viewBox}"><use href="#${opts.spriteId}"/></svg>
+        ${overlayHtml}
+        <div class="s-status ${opts.statusClass}"></div>
+      </div>
+      <div class="s-label">${opts.label}</div>
+    `;
+    el.onclick = opts.onClick;
+    if (opts.slug) {
+      el.dataset.slug = opts.slug;
+      state.spriteEls[opts.slug] = el;
+    }
+    body.appendChild(el);
+  };
+
+  // Systems
+  for (const s of d.systems) {
+    if (s.slug === 'chief-of-staff') continue;
+    const status = statusClass(s.status);
+    placeSprite(s.room, {
+      slug: s.slug,
+      spriteId: SPRITE_FOR[s.category] || 'obj-server',
+      statusClass: status,
+      label: s.name,
+      faviconUrl: s.url,
+      emoji: s.icon,
+      onClick: () => showPanel({
+        spriteId: SPRITE_FOR[s.category] || 'obj-server',
+        title: s.name,
+        sub: s.category + (s.port ? ` · port ${s.port}` : ''),
+        rows: [
+          ['סטטוס', `<span class="badge badge-${status}">${s.status}</span> ${s.status_note || ''}`],
+          ['תיאור', s.description || '—'],
+          ['URL', s.url ? `<a href="${s.url}" target="_blank" style="color:var(--accent)">${s.url}</a>` : '—'],
+          ['קוד', s.code_path ? `<code>${s.code_path}</code>` : '—'],
+          ['Daemon', s.daemon_label ? `<code>${s.daemon_label}</code>` : '—'],
+          ['נבדק', s.last_checked || 'אף פעם'],
+        ],
+        actions: s.url ? [{label: '🚀 פתח', primary: true, click: () => window.open(s.url, '_blank')}] : [],
+      }),
+    });
+  }
+
+  // Agents & skills
+  for (const a of d.agents) {
+    placeSprite(a.room, {
+      slug: a.slug,
+      spriteId: SPRITE_FOR[a.kind] || 'char-skill',
+      statusClass: 'green',
+      label: a.name,
+      emoji: a.icon,
+      onClick: () => showPanel({
+        spriteId: SPRITE_FOR[a.kind] || 'char-skill',
+        title: a.name,
+        sub: a.kind + (a.plugin ? ` · ${a.plugin}` : ''),
+        rows: [
+          ['slug', `<code>${a.slug}</code>`],
+          ['תיאור', (a.description || '—').slice(0, 400)],
+        ],
+        actions: [],
+      }),
+    });
+  }
+
+  // Processes
+  for (const p of d.processes) {
+    placeSprite(p.room, {
+      slug: p.slug,
+      spriteId: 'obj-gear',
+      statusClass: p.last_status === 'success' ? 'green' : (p.last_status === 'failed' ? 'red' : 'unknown'),
+      label: p.name,
+      emoji: p.icon,
+      onClick: () => showPanel({
+        spriteId: 'obj-gear',
+        title: p.name,
+        sub: p.cadence || 'manual',
+        rows: [
+          ['תיאור', p.description || '—'],
+          ['Daemon', p.daemon_label ? `<code>${p.daemon_label}</code>` : 'manual'],
+          ['Trigger', p.trigger_command ? `<code>${p.trigger_command}</code>` : '—'],
+          ['ריצה אחרונה', p.last_run || 'לא ידוע'],
+          ['סטטוס', p.last_status || 'unknown'],
+        ],
+        actions: [],
+      }),
+    });
+  }
+
+  // Credentials
+  for (const c of d.credentials) {
+    const sev = c.severity || 'ok';
+    placeSprite('integrations', {
+      spriteId: 'obj-key',
+      statusClass: sev === 'ok' ? 'green' : (sev === 'warning' ? 'yellow' : 'red'),
+      label: c.provider,
+      faviconUrl: c.dashboard_url,
+      emoji: '🔑',
+      onClick: () => showPanel({
+        spriteId: 'obj-key',
+        title: c.provider,
+        sub: c.purpose,
+        rows: [
+          ['חומרה', `<span class="badge badge-${sev==='ok'?'green':sev==='warning'?'yellow':'red'}">${sev}</span>`],
+          ['יתרה אחרונה', c.last_balance || 'לא נבדק'],
+          ['בדיקה אחרונה', c.last_balance_at || '—'],
+          ['Dashboard', c.dashboard_url ? `<a href="${c.dashboard_url}" target="_blank" style="color:var(--accent)">פתח</a>` : '—'],
+        ],
+        actions: c.dashboard_url ? [{label: '🌐 פתח Dashboard', primary: true, click: () => window.open(c.dashboard_url, '_blank')}] : [],
+      }),
+    });
+  }
+
+  // Observations as sprites in the insights room
+  for (const o of d.observations) {
+    const sev = o.severity || 'info';
+    const kindEmoji = {
+      'alert': '⚠️', 'pattern': '🔄', 'idea': '💡',
+      'insight': '🌟', 'health': '🩺',
+    }[o.kind] || '💡';
+    placeSprite('insights', {
+      spriteId: 'obj-bulb',
+      statusClass: sev,
+      label: o.title,
+      emoji: kindEmoji,
+      onClick: () => showPanel({
+        spriteId: 'obj-bulb',
+        title: o.title,
+        sub: `${o.kind} · ${sev}`,
+        rows: [
+          ['פירוט', o.body || '—'],
+          ['המלצה', o.recommended_action || '—'],
+          ['תאריך', o.ts || '—'],
+          ['Auto-heal', o.auto_fixable ? `<code>${o.fix_command || ''}</code>` : 'לא ניתן לתיקון אוטומטי'],
+        ],
+        actions: [
+          {label: 'סמן ראיתי', primary: false, click: () => { ackObs(o.id); $('#panel').classList.remove('open'); }},
+          {label: 'פתור', primary: true, click: () => { resolveObs(o.id); $('#panel').classList.remove('open'); }},
+        ],
+      }),
+    });
+  }
+
+  renderObservations(d.observations);
+}
+
+function renderObservations(obs) {
+  $('#obs-count').textContent = obs.length;
+  $('#obs-count').className = 'obs-pill ' + (obs.length === 0 ? 'zero' : '');
+  const list = $('#obs-list');
+  list.innerHTML = obs.length === 0
+    ? '<div style="padding:20px; color: var(--text-dim); text-align: center;">אין תובנות פתוחות. הכל שקט. 🌙</div>'
+    : '';
+  for (const o of obs) {
+    const row = document.createElement('div');
+    row.className = 'obs ' + (o.severity || 'info');
+    const healBtn = (o.auto_fixable && o.fix_command)
+      ? `<button class="heal" onclick="healObs(${o.id})">🩹 תקן עכשיו</button>`
+      : '';
+    row.innerHTML = `
+      <div style="flex:1; min-width:0;">
+        <div class="obs-title">${o.title}</div>
+        <div class="obs-body">${o.body || ''} ${o.recommended_action ? `<br><b>המלצה:</b> ${o.recommended_action}` : ''}</div>
+      </div>
+      <div class="obs-action">
+        ${healBtn}
+        <button onclick="ackObs(${o.id})">סמן ראיתי</button>
+        <button onclick="resolveObs(${o.id})">פתור</button>
+      </div>
+    `;
+    list.appendChild(row);
+  }
+}
+
+async function ackObs(id) {
+  await fetchJSON(`/api/observations/${id}/ack`, {method: 'POST'});
+  load();
+}
+async function resolveObs(id) {
+  await fetchJSON(`/api/observations/${id}/resolve`, {method: 'POST'});
+  load();
+}
+async function healObs(id) {
+  toast('מריץ תיקון...');
+  const r = await fetchJSON(`/api/observations/${id}/heal`, {method: 'POST'});
+  if (r.ok) {
+    toast('תוקן ✓', 'success');
+  } else {
+    toast('תיקון נכשל: ' + (r.error || 'unknown'), 'error');
+  }
+  load();
+}
+
+function showPanel({ spriteId, title, sub, rows, actions }) {
+  $('#p-icon').innerHTML = `<svg viewBox="0 0 40 40"><use href="#${spriteId}"/></svg>`;
+  $('#p-title').textContent = title;
+  $('#p-sub').textContent = sub;
+  $('#p-body').innerHTML = rows.map(([label, value]) =>
+    `<div class="field"><label>${label}</label><div class="v">${value}</div></div>`
+  ).join('');
+  const actEl = $('#p-actions');
+  actEl.innerHTML = '';
+  for (const a of actions) {
+    const btn = document.createElement('button');
+    btn.textContent = a.label;
+    if (!a.primary) btn.classList.add('secondary');
+    btn.onclick = a.click;
+    actEl.appendChild(btn);
+  }
+  actEl.style.display = actions.length === 0 ? 'none' : 'flex';
+  $('#panel').classList.add('open');
+}
+
+$('#p-close').onclick = () => $('#panel').classList.remove('open');
+$('#obs-handle').onclick = () => $('#observations-bar').classList.toggle('open');
+
+$('#btn-refresh').onclick = async () => {
+  $('#btn-refresh').textContent = '⏳ ...';
+  await fetchJSON('/api/refresh', {method: 'POST'});
+  await load();
+  $('#btn-refresh').textContent = '🔄 רענן';
+  toast('הסקירה רוענה ✓', 'success');
+};
+
+$('#btn-insights').onclick = async () => {
+  $('#btn-insights').textContent = '⏳ ...';
+  const r = await fetchJSON('/api/insights/run', {method: 'POST'});
+  $('#btn-insights').textContent = '🌟 תובנות שבועיות';
+  if (r.ok) {
+    toast(`נוצרו ${r.created || 0} תובנות חדשות`, 'success');
+    $('#observations-bar').classList.add('open');
+    await load();
+  } else {
+    toast('נכשל: ' + (r.error || 'unknown'), 'error');
+  }
+};
+
+$('#btn-chat').onclick = openChat;
+function openChat() {
+  $('#chat-modal').classList.add('open');
+  loadChatHistory();
+  $('#chat-input').focus();
+}
+$('#chat-modal').onclick = (e) => { if (e.target.id === 'chat-modal') $('#chat-modal').classList.remove('open'); };
+
+async function loadChatHistory() {
+  const msgs = (await fetchJSON('/api/chat?limit=20')).reverse();
+  const h = $('#chat-history');
+  h.innerHTML = msgs.map(m => `
+    <div class="chat-msg ${m.role}">
+      <div class="role">${m.role === 'user' ? 'אני' : 'ראש המטה'}</div>
+      ${m.content.replace(/\n/g,'<br>')}
+    </div>
+  `).join('') || '<div style="color:var(--text-dim); text-align:center; padding: 40px;">אין שיחות עדיין. נסה לשאול משהו 👇</div>';
+  h.scrollTop = h.scrollHeight;
+}
+
+$('#chat-send').onclick = sendChat;
+$('#chat-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendChat(); });
+let chatSending = false;
+async function sendChat() {
+  if (chatSending) return;
+  const msg = $('#chat-input').value.trim();
+  if (!msg) return;
+  chatSending = true;
+  $('#chat-input').value = '';
+  $('#chat-input').disabled = true;
+  $('#chat-send').disabled = true;
+  $('#chat-send').textContent = 'שולח...';
+
+  // Optimistic: show user message immediately
+  const h = $('#chat-history');
+  const userBubble = document.createElement('div');
+  userBubble.className = 'chat-msg user';
+  userBubble.innerHTML = `<div class="role">אני</div>${msg.replace(/\n/g,'<br>')}`;
+  h.appendChild(userBubble);
+
+  // Typing indicator
+  const typing = document.createElement('div');
+  typing.className = 'chat-msg assistant';
+  typing.id = 'typing-indicator';
+  typing.innerHTML = `<div class="role">ראש המטה</div><div class="typing"><span></span><span></span><span></span></div>`;
+  h.appendChild(typing);
+  h.scrollTop = h.scrollHeight;
+
+  try {
+    const r = await fetchJSON('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({message: msg})
+    });
+    typing.remove();
+    if (r.reply) {
+      const reply = document.createElement('div');
+      reply.className = 'chat-msg assistant';
+      reply.innerHTML = `<div class="role">ראש המטה</div>${r.reply.replace(/\n/g,'<br>')}`;
+      h.appendChild(reply);
+    } else if (r.error) {
+      const errEl = document.createElement('div');
+      errEl.className = 'chat-msg assistant';
+      errEl.innerHTML = `<div class="role">ראש המטה</div>⚠️ ${r.error}`;
+      h.appendChild(errEl);
+    }
+    h.scrollTop = h.scrollHeight;
+    // Reload observations - the agent might have logged something
+    load();
+  } catch (e) {
+    typing.remove();
+    const errEl = document.createElement('div');
+    errEl.className = 'chat-msg assistant';
+    errEl.innerHTML = `<div class="role">ראש המטה</div>⚠️ שגיאה: ${e.message}`;
+    h.appendChild(errEl);
+  } finally {
+    chatSending = false;
+    $('#chat-input').disabled = false;
+    $('#chat-send').disabled = false;
+    $('#chat-send').textContent = 'שלח';
+    $('#chat-input').focus();
+  }
+}
+
+async function load() {
+  state.data = await fetchJSON('/api/state');
+  // Seed messages cache from the snapshot so the feed renders immediately
+  if (state.data && state.data.agent_messages && !state.messagesCache) {
+    state.messagesCache = state.data.agent_messages.slice();
+    for (const m of state.messagesCache) state.seenMessageIds.add(m.id);
+    if (state.messagesCache.length) state.lastMessagesTs = state.messagesCache[0].ts;
+  }
+  render();
+  renderActivityFeed(state.messagesCache || []);
+}
+
+async function init() {
+  await loadSprites();
+  await load();
+  setInterval(load, 30000);
+  // Live agent activity — poll faster than full state
+  setInterval(pollAgentMessages, 5000);
+  // Rotate boss bubble using live data
+  setInterval(() => {
+    const b = $('#boss-bubble');
+    const qs = state.bossQuotes;
+    if (b && qs && qs.length) {
+      b.innerHTML = qs[Math.floor(Math.random()*qs.length)];
+    }
+  }, 8000);
+}
+
+init();
+</script>
+</body>
+</html>

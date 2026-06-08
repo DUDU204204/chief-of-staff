@@ -1,0 +1,198 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!-- ════════ CHARACTER SPRITES ════════ -->
+
+  <!-- Boss / Chief of Staff -->
+  <symbol id="char-boss" viewBox="0 0 32 40">
+    <!-- shadow -->
+    <ellipse cx="16" cy="38" rx="8" ry="2" fill="rgba(0,0,0,0.4)"/>
+    <!-- legs -->
+    <rect x="12" y="26" width="3" height="10" fill="#2a1a0a"/>
+    <rect x="17" y="26" width="3" height="10" fill="#2a1a0a"/>
+    <!-- body / suit -->
+    <rect x="10" y="16" width="12" height="12" fill="#1a1a2e" rx="1"/>
+    <!-- shirt -->
+    <polygon points="14,16 16,22 18,16" fill="#e8e8e8"/>
+    <!-- tie -->
+    <polygon points="15,17 17,17 16.5,22 15.5,22" fill="#ffd166"/>
+    <!-- head -->
+    <circle cx="16" cy="11" r="5" fill="#e8b89a"/>
+    <!-- hair -->
+    <path d="M 11 9 Q 16 4 21 9 L 21 11 Q 16 7 11 11 Z" fill="#2a1a0a"/>
+    <!-- top hat -->
+    <ellipse cx="16" cy="6" rx="6" ry="1.5" fill="#0a0a14"/>
+    <rect x="13" y="2" width="6" height="5" fill="#0a0a14"/>
+    <rect x="13" y="5" width="6" height="1" fill="#ffd166"/>
+    <!-- eyes -->
+    <circle cx="14" cy="11" r="0.6" fill="#0a0a14"/>
+    <circle cx="18" cy="11" r="0.6" fill="#0a0a14"/>
+  </symbol>
+
+  <!-- Worker agent (generic) -->
+  <symbol id="char-agent" viewBox="0 0 32 40">
+    <ellipse cx="16" cy="38" rx="7" ry="1.8" fill="rgba(0,0,0,0.35)"/>
+    <rect x="12" y="26" width="3" height="10" fill="#1a3a5a"/>
+    <rect x="17" y="26" width="3" height="10" fill="#1a3a5a"/>
+    <rect x="10" y="17" width="12" height="11" fill="#3a5a9a" rx="1"/>
+    <circle cx="16" cy="12" r="5" fill="#e8b89a"/>
+    <path d="M 11 10 Q 16 6 21 10 L 21 12 Q 16 8 11 12 Z" fill="#6a4a2a"/>
+    <circle cx="14" cy="12" r="0.5" fill="#0a0a14"/>
+    <circle cx="18" cy="12" r="0.5" fill="#0a0a14"/>
+    <!-- headset -->
+    <path d="M 10 11 Q 16 6 22 11" stroke="#222" stroke-width="0.8" fill="none"/>
+    <circle cx="10" cy="11" r="1.2" fill="#222"/>
+  </symbol>
+
+  <!-- Skill (toolbox character - more compact, tech vibe) -->
+  <symbol id="char-skill" viewBox="0 0 32 40">
+    <ellipse cx="16" cy="38" rx="7" ry="1.8" fill="rgba(0,0,0,0.35)"/>
+    <rect x="12" y="26" width="3" height="10" fill="#0f3a1f"/>
+    <rect x="17" y="26" width="3" height="10" fill="#0f3a1f"/>
+    <rect x="10" y="17" width="12" height="11" fill="#2d8a4f" rx="1"/>
+    <circle cx="16" cy="12" r="5" fill="#e8b89a"/>
+    <!-- beanie hat -->
+    <path d="M 11 11 Q 16 4 21 11 L 21 9 Q 16 5 11 9 Z" fill="#2d8a4f"/>
+    <circle cx="14" cy="13" r="0.5" fill="#0a0a14"/>
+    <circle cx="18" cy="13" r="0.5" fill="#0a0a14"/>
+    <!-- tools belt -->
+    <rect x="9" y="23" width="14" height="2" fill="#5a3a1a"/>
+    <circle cx="12" cy="24" r="0.8" fill="#aaa"/>
+    <circle cx="16" cy="24" r="0.8" fill="#aaa"/>
+    <circle cx="20" cy="24" r="0.8" fill="#aaa"/>
+  </symbol>
+
+  <!-- Computer / Dashboard monitor -->
+  <symbol id="obj-monitor" viewBox="0 0 40 40">
+    <ellipse cx="20" cy="38" rx="13" ry="1.5" fill="rgba(0,0,0,0.35)"/>
+    <!-- stand -->
+    <rect x="18" y="30" width="4" height="6" fill="#1a1a2e"/>
+    <rect x="14" y="35" width="12" height="2" fill="#1a1a2e"/>
+    <!-- monitor body -->
+    <rect x="6" y="8" width="28" height="22" fill="#0a0a14" rx="2"/>
+    <!-- screen -->
+    <rect x="8" y="10" width="24" height="18" fill="#1a4a8a"/>
+    <!-- screen content (data grid) -->
+    <rect x="10" y="12" width="10" height="2" fill="#34d399" opacity="0.8"/>
+    <rect x="10" y="16" width="14" height="1" fill="#60a5fa" opacity="0.6"/>
+    <rect x="10" y="19" width="8" height="1" fill="#60a5fa" opacity="0.5"/>
+    <rect x="10" y="22" width="12" height="1" fill="#60a5fa" opacity="0.5"/>
+    <rect x="10" y="25" width="6" height="1" fill="#fbbf24" opacity="0.7"/>
+    <!-- power LED -->
+    <circle cx="20" cy="32" r="0.8" fill="#34d399"/>
+  </symbol>
+
+  <!-- Server / Integration box -->
+  <symbol id="obj-server" viewBox="0 0 32 40">
+    <ellipse cx="16" cy="38" rx="10" ry="1.5" fill="rgba(0,0,0,0.35)"/>
+    <rect x="6" y="6" width="20" height="30" fill="#1a1f2e" rx="1"/>
+    <!-- server units -->
+    <rect x="8" y="9" width="16" height="5" fill="#0a0e1a"/>
+    <rect x="8" y="16" width="16" height="5" fill="#0a0e1a"/>
+    <rect x="8" y="23" width="16" height="5" fill="#0a0e1a"/>
+    <rect x="8" y="30" width="16" height="4" fill="#0a0e1a"/>
+    <!-- LEDs -->
+    <circle cx="10" cy="11.5" r="0.6" fill="#34d399"/>
+    <circle cx="12" cy="11.5" r="0.6" fill="#34d399"/>
+    <circle cx="22" cy="11.5" r="0.6" fill="#fbbf24"/>
+    <circle cx="10" cy="18.5" r="0.6" fill="#34d399"/>
+    <circle cx="12" cy="18.5" r="0.6" fill="#60a5fa"/>
+    <circle cx="22" cy="18.5" r="0.6" fill="#34d399"/>
+    <circle cx="10" cy="25.5" r="0.6" fill="#34d399"/>
+    <circle cx="22" cy="25.5" r="0.6" fill="#60a5fa"/>
+  </symbol>
+
+  <!-- Key / credential -->
+  <symbol id="obj-key" viewBox="0 0 32 40">
+    <ellipse cx="16" cy="38" rx="6" ry="1.5" fill="rgba(0,0,0,0.35)"/>
+    <!-- key head -->
+    <circle cx="16" cy="14" r="7" fill="#fbbf24" stroke="#8a6a14" stroke-width="1"/>
+    <circle cx="16" cy="14" r="3" fill="#1a1f2e"/>
+    <!-- key shaft -->
+    <rect x="15" y="20" width="2" height="14" fill="#fbbf24"/>
+    <rect x="15" y="28" width="4" height="2" fill="#fbbf24"/>
+    <rect x="15" y="32" width="3" height="2" fill="#fbbf24"/>
+  </symbol>
+
+  <!-- Gear / process -->
+  <symbol id="obj-gear" viewBox="0 0 40 40">
+    <ellipse cx="20" cy="38" rx="10" ry="1.5" fill="rgba(0,0,0,0.35)"/>
+    <g transform="translate(20 20)">
+      <g class="gear-spin">
+        <path d="M -2 -14 L 2 -14 L 3 -10 L -3 -10 Z" fill="#9aa0b8"/>
+        <path d="M 14 -2 L 14 2 L 10 3 L 10 -3 Z" fill="#9aa0b8"/>
+        <path d="M 2 14 L -2 14 L -3 10 L 3 10 Z" fill="#9aa0b8"/>
+        <path d="M -14 2 L -14 -2 L -10 -3 L -10 3 Z" fill="#9aa0b8"/>
+        <path d="M 8 -11 L 11 -8 L 8 -5 L 5 -8 Z" fill="#9aa0b8"/>
+        <path d="M 11 8 L 8 11 L 5 8 L 8 5 Z" fill="#9aa0b8"/>
+        <path d="M -8 11 L -11 8 L -8 5 L -5 8 Z" fill="#9aa0b8"/>
+        <path d="M -11 -8 L -8 -11 L -5 -8 L -8 -5 Z" fill="#9aa0b8"/>
+        <circle r="9" fill="#1a1f2e"/>
+        <circle r="7" fill="#3a3f5e"/>
+        <circle r="3" fill="#1a1f2e"/>
+      </g>
+    </g>
+  </symbol>
+
+  <!-- Plug / MCP integration -->
+  <symbol id="obj-plug" viewBox="0 0 32 40">
+    <ellipse cx="16" cy="38" rx="6" ry="1.5" fill="rgba(0,0,0,0.35)"/>
+    <!-- plug body -->
+    <rect x="10" y="14" width="12" height="14" fill="#fbbf24" rx="2"/>
+    <!-- prongs -->
+    <rect x="12" y="8" width="2" height="8" fill="#9aa0b8"/>
+    <rect x="18" y="8" width="2" height="8" fill="#9aa0b8"/>
+    <!-- cable -->
+    <path d="M 16 28 Q 16 34 12 36" stroke="#1a1a2e" stroke-width="2" fill="none"/>
+    <!-- spark -->
+    <circle cx="13" cy="6" r="0.8" fill="#fff" opacity="0.9"/>
+    <circle cx="19" cy="6" r="0.8" fill="#fff" opacity="0.9"/>
+  </symbol>
+
+  <!-- Idea / observation lightbulb -->
+  <symbol id="obj-bulb" viewBox="0 0 32 40">
+    <ellipse cx="16" cy="38" rx="6" ry="1.5" fill="rgba(0,0,0,0.35)"/>
+    <!-- bulb -->
+    <circle cx="16" cy="14" r="9" fill="#fbbf24" opacity="0.9"/>
+    <circle cx="16" cy="14" r="7" fill="#ffd166"/>
+    <!-- base -->
+    <rect x="12" y="22" width="8" height="3" fill="#9aa0b8"/>
+    <rect x="13" y="25" width="6" height="2" fill="#9aa0b8"/>
+    <rect x="14" y="27" width="4" height="2" fill="#5a5f7e"/>
+    <!-- glow rays -->
+    <line x1="16" y1="2" x2="16" y2="5" stroke="#fbbf24" stroke-width="1.2"/>
+    <line x1="6" y1="14" x2="3" y2="14" stroke="#fbbf24" stroke-width="1.2"/>
+    <line x1="26" y1="14" x2="29" y2="14" stroke="#fbbf24" stroke-width="1.2"/>
+    <line x1="9" y1="7" x2="6" y2="4" stroke="#fbbf24" stroke-width="1.2"/>
+    <line x1="23" y1="7" x2="26" y2="4" stroke="#fbbf24" stroke-width="1.2"/>
+  </symbol>
+
+  <!-- Floor tile patterns -->
+  <pattern id="floor-wood" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+    <rect width="40" height="40" fill="#3a2a1a"/>
+    <rect width="40" height="2" fill="#2a1a0a"/>
+    <rect y="20" width="20" height="2" fill="#2a1a0a"/>
+    <rect x="20" y="20" width="20" height="2" fill="#2a1a0a"/>
+    <line x1="0" y1="0" x2="0" y2="40" stroke="#2a1a0a" stroke-width="0.5"/>
+    <line x1="20" y1="0" x2="20" y2="20" stroke="#2a1a0a" stroke-width="0.5"/>
+    <line x1="20" y1="22" x2="20" y2="40" stroke="#2a1a0a" stroke-width="0.5"/>
+  </pattern>
+
+  <pattern id="floor-tech" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+    <rect width="20" height="20" fill="#1a2138"/>
+    <line x1="0" y1="0" x2="20" y2="0" stroke="#2a3148" stroke-width="0.5"/>
+    <line x1="0" y1="0" x2="0" y2="20" stroke="#2a3148" stroke-width="0.5"/>
+    <circle cx="10" cy="10" r="0.5" fill="#3a4158" opacity="0.6"/>
+  </pattern>
+
+  <pattern id="floor-carpet" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+    <rect width="16" height="16" fill="#3a1f2e"/>
+    <path d="M 0 8 L 8 0 L 16 8 L 8 16 Z" fill="#4a2a3e" opacity="0.5"/>
+  </pattern>
+
+  <pattern id="floor-stone" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+    <rect width="30" height="30" fill="#2a3148"/>
+    <rect x="0" y="0" width="14" height="14" fill="#323a5a" stroke="#1a1f2e" stroke-width="0.5"/>
+    <rect x="16" y="0" width="14" height="14" fill="#323a5a" stroke="#1a1f2e" stroke-width="0.5"/>
+    <rect x="0" y="16" width="14" height="14" fill="#323a5a" stroke="#1a1f2e" stroke-width="0.5"/>
+    <rect x="16" y="16" width="14" height="14" fill="#323a5a" stroke="#1a1f2e" stroke-width="0.5"/>
+  </pattern>
+</svg>

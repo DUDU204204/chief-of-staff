@@ -1,0 +1,2 @@
+# No external dependencies — runs on Python 3.10+ stdlib only.
+# Optional: install `httpie` or `curl` for testing endpoints.

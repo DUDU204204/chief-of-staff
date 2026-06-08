@@ -1,0 +1,25 @@
+{
+  "_comment": "Optional permissions allowlist for the Chief of Staff agent. Merge into ~/.claude/settings.json if you want the agent to run without per-command prompts. Replace {COS_PATH} with the absolute path where you installed this repo.",
+  "permissions": {
+    "allow": [
+      "Bash(sqlite3:*)",
+      "Bash(launchctl list)",
+      "Bash(launchctl list:*)",
+      "Bash(lsof:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(date:*)",
+      "Bash(curl:*)",
+      "Bash(python3 {COS_PATH}/*)",
+      "Bash(touch {COS_PATH}/*)",
+      "Bash(mkdir {COS_PATH}/*)",
+      "Read",
+      "Grep",
+      "Glob",
+      "WebSearch",
+      "WebFetch",
+      "Edit({COS_PATH}/*)",
+      "Write({COS_PATH}/*)"
+    ]
+  }
+}
