@@ -1,11 +1,7 @@
+data/
+systems.json
 __pycache__/
 *.pyc
 .DS_Store
-data/
-state/
-logs/
-systems.json
 *.log
-.env
-.venv/
-venv/
+.leakscan-allow

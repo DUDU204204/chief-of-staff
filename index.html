@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>המשרד שלי</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fafaf9;--surface:#fff;--ink:#0a0a0a;--muted:#71717a;--line:#e7e5e4;--accent:#0a0a0a;--ok:#16a34a;--warn:#d97706;--bad:#dc2626;--soft:#f4f4f5;--r:14px;--sans:'Assistant',system-ui,sans-serif;--mono:'SF Mono',Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;min-height:100vh}
+a{color:inherit}
+.layout{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+/* sidebar (right, RTL) */
+.side{background:var(--surface);border-inline-end:1px solid var(--line);padding:18px 14px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.brand .logo{width:34px;height:34px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800}
+.brand b{font-size:17px;display:block;line-height:1.1}
+.brand small{color:var(--muted);font-size:12px}
+.grp{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.04em;padding:12px 10px 4px}
+.nav{display:flex;align-items:center;gap:8px;width:100%;text-align:right;border:0;background:none;font-family:var(--sans);font-size:14.5px;padding:8px 10px;border-radius:10px;cursor:pointer;color:var(--ink)}
+.nav:hover{background:var(--soft)}
+.nav.on{background:var(--soft);font-weight:700}
+.nav .ic{width:20px;text-align:center}
+.nav .n{margin-inline-start:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.nav.on .n{background:var(--accent);color:#fff;border-color:var(--accent)}
+.side .foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--line);display:flex;gap:8px}
+.btn{font-family:var(--sans);font-size:14px;font-weight:700;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;cursor:pointer;color:var(--ink)}
+.btn:hover{background:var(--soft)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.sm{font-size:13px;padding:5px 10px}
+/* main */
+main{padding:22px 26px;min-width:0}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.top h1{font-size:22px;font-weight:800}
+.top .meta{color:var(--muted);font-size:13px}
+.search{flex:1 1 260px;max-width:460px;font-family:var(--sans);font-size:15px;padding:9px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 18px}
+.chip{font-family:var(--sans);font-size:13px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;cursor:pointer;color:var(--ink)}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.chip .n{color:var(--muted);font-family:var(--mono);font-size:11px;margin-inline-start:4px}
+.chip.on .n{color:#ddd}
+.sec{display:flex;align-items:baseline;gap:8px;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.sec h2{font-size:15px;font-weight:800}
+.sec small{color:var(--muted);font-family:var(--mono);font-size:11.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .hd{display:flex;align-items:flex-start;gap:10px}
+.card .icon{font-size:24px;line-height:1;width:32px;text-align:center;flex:none}
+.card .name{font-weight:800;font-size:15.5px;line-height:1.2}
+.card .slug{font-family:var(--mono);font-size:11px;color:var(--muted);direction:ltr;text-align:right;overflow-wrap:anywhere}
+.card p{color:#3f3f46;font-size:13.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card .tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:11.5px;background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:#52525b}
+.card .act{margin-top:auto;display:flex;gap:6px;align-items:center}
+.dot{width:9px;height:9px;border-radius:50%;background:#c4c4c4;display:inline-block}
+.dot.ok{background:var(--ok)}
+.dot.bad{background:var(--warn);animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.35}}
+.src{font-family:var(--mono);font-size:10.5px;color:var(--muted);direction:ltr}
+/* runs + insights */
+.list{display:flex;flex-direction:column;gap:8px}
+.row{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.row .hd{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.st{font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--soft)}
+.st.running{background:#fef3c7;color:#92400e}.st.done{background:#dcfce7;color:#166534}.st.failed,.st.timeout{background:#fee2e2;color:#991b1b}
+.row pre{margin-top:10px;background:#0a0a0a;color:#e5e5e5;border-radius:10px;padding:12px;font-family:var(--mono);font-size:12.5px;direction:ltr;text-align:left;white-space:pre-wrap;max-height:360px;overflow:auto}
+.sev{font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--soft)}
+.sev.warn{background:#fef3c7;color:#92400e}.sev.error,.sev.critical{background:#fee2e2;color:#991b1b}
+.empty{color:var(--muted);padding:30px 0;text-align:center}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,10,10,.45);display:none;place-items:center;z-index:50}
+.modal.on{display:grid}
+.box{background:var(--surface);border-radius:16px;padding:22px;width:min(560px,92vw);display:flex;flex-direction:column;gap:12px}
+.box textarea{font-family:var(--sans);font-size:15px;border:1px solid var(--line);border-radius:10px;padding:10px;min-height:110px;resize:vertical}
+.box .row2{display:flex;gap:8px;justify-content:flex-start}
+@media (max-width:860px){.layout{grid-template-columns:1fr}.side{position:static;height:auto;border:0;border-bottom:1px solid var(--line)}.side .foot{margin-top:10px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="side">
+  <div class="brand"><div class="logo">★</div><div><b>המשרד שלי</b><small id="sub">טוען...</small></div></div>
+  <button class="nav on" data-tab="all"><span class="ic">🌐</span>הכל<span class="n" id="n-all">0</span></button>
+  <div class="grp">קטלוג</div>
+  <button class="nav" data-tab="skill"><span class="ic">🧠</span>סקילים<span class="n" id="n-skill">0</span></button>
+  <button class="nav" data-tab="agent"><span class="ic">🤖</span>סוכנים<span class="n" id="n-agent">0</span></button>
+  <button class="nav" data-tab="scheduled"><span class="ic">⏰</span>משימות מתוזמנות<span class="n" id="n-scheduled">0</span></button>
+  <button class="nav" data-tab="connection"><span class="ic">🔌</span>חיבורים<span class="n" id="n-connection">0</span></button>
+  <div class="grp">משרד</div>
+  <button class="nav" data-tab="system"><span class="ic">📊</span>מערכות ודשבורדים<span class="n" id="n-system">0</span></button>
+  <button class="nav" data-tab="hook"><span class="ic">🪝</span>hooks<span class="n" id="n-hook">0</span></button>
+  <button class="nav" data-tab="insights"><span class="ic">💡</span>תובנות<span class="n" id="n-insights">0</span></button>
+  <div class="grp">פעילות</div>
+  <button class="nav" data-tab="runs"><span class="ic">📜</span>ריצות<span class="n" id="n-runs">0</span></button>
+  <div class="foot"><button class="btn" id="refresh">🔄 רענן</button><button class="btn" id="reg">＋ רישום</button></div>
+</aside>
+<main>
+  <div class="top">
+    <h1 id="title">הכל</h1>
+    <input class="search" id="q" placeholder="חפש סקיל, סוכן, חיבור, מערכת...">
+    <span class="meta" id="meta"></span>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div id="content"></div>
+</main>
+</div>
+
+<div class="modal" id="runModal"><div class="box">
+  <b id="runTitle">הפעלת סקיל</b>
+  <div class="src" id="runSlug"></div>
+  <textarea id="runArgs" placeholder="מה להעביר לסקיל? (למשל: על ההקלטה מאתמול, קצר)"></textarea>
+  <div class="row2"><button class="btn primary" id="runGo">▶ הפעל</button><button class="btn" id="runClose">ביטול</button></div>
+</div></div>
+
+<div class="modal" id="regModal"><div class="box">
+  <b>רישום ידני במשרד</b>
+  <div class="src">system · scheduled · agent · skill · connection</div>
+  <textarea id="regJson" placeholder='{"kind":"system","slug":"crm","name":"ה-CRM שלי","description":"לידים ולקוחות","tags":["לקוחות"],"meta":{"url":"https://...","port":null,"icon":"📇","room":"לקוחות"}}'></textarea>
+  <div class="row2"><button class="btn primary" id="regGo">רשום</button><button class="btn" id="regClose">ביטול</button></div>
+</div></div>
+
+<script>
+(function(){
+const KIND={skill:'סקילים',agent:'סוכנים',scheduled:'משימות מתוזמנות',connection:'חיבורים',system:'מערכות ודשבורדים',hook:'hooks'};
+const ICON={skill:'🧠',agent:'🤖',scheduled:'⏰',connection:'🔌',system:'📊',hook:'🪝'};
+let S={items:[],counts:{},runs:[],observations:[]},tab='all',tag=null,q='',openRun=null,timer=null;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function load(){const r=await fetch('/api/state');S=await r.json();render();}
+function counts(){
+  for(const k of Object.keys(KIND)){const el=$('#n-'+k);if(el)el.textContent=S.counts[k]||0;}
+  $('#n-all').textContent=S.items.length;$('#n-insights').textContent=S.observations.length;$('#n-runs').textContent=S.runs.length;
+  const run=S.runs.filter(r=>r.status==='running').length;
+  $('#sub').textContent=`${S.items.length} פריטים · ${run} ריצות פעילות`;
+  $('#meta').textContent=S.last_discovery?('גילוי אחרון: '+S.last_discovery.replace('T',' ')):'';
+}
+function visible(){
+  let it=S.items.filter(i=>tab==='all'||i.kind===tab);
+  if(tag)it=it.filter(i=>(i.tags||[]).includes(tag));
+  if(q){const s=q.toLowerCase();it=it.filter(i=>(i.name+' '+i.slug+' '+(i.description||'')+' '+(i.tags||[]).join(' ')).toLowerCase().includes(s));}
+  return it;
+}
+function chips(){
+  const base=S.items.filter(i=>tab==='all'||i.kind===tab);const m={};
+  base.forEach(i=>(i.tags||[]).forEach(t=>m[t]=(m[t]||0)+1));
+  const el=$('#chips');el.innerHTML='';
+  if(['runs','insights'].includes(tab)){return;}
+  const all=document.createElement('button');all.className='chip'+(tag?'':' on');all.textContent='הכל';all.onclick=()=>{tag=null;render();};el.appendChild(all);
+  Object.entries(m).sort((a,b)=>b[1]-a[1]).forEach(([t,n])=>{const b=document.createElement('button');b.className='chip'+(tag===t?' on':'');b.innerHTML=esc(t)+'<span class="n">'+n+'</span>';b.onclick=()=>{tag=(tag===t?null:t);render();};el.appendChild(b);});
+}
+function card(i){
+  const m=i.meta||{};const icon=m.icon||ICON[i.kind]||'▫️';
+  let act='';
+  if(i.kind==='skill')act=`<button class="btn primary sm" data-run="${esc(i.slug.split(':').pop())}">▶ הפעל</button>`;
+  if(i.kind==='system'){act=(m.port?`<span class="dot ${i.alive?'ok':'bad'}" title="${i.alive?'חי':'לא עונה'}"></span><span class="src">port ${m.port}</span>`:'')+(m.url?`<a class="btn sm" href="${esc(m.url)}" target="_blank" rel="noopener">פתח ↗</a>`:'');}
+  if(i.kind==='scheduled'&&m.next)act=`<span class="src">next: ${esc(m.next)}</span>`;
+  return `<div class="card"><div class="hd"><div class="icon">${icon}</div><div style="min-width:0"><div class="name">${esc(i.name)}</div><div class="slug">${esc(i.slug)}</div></div></div>
+  <div class="tags">${(i.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+  <p>${esc(i.description||'')}</p>
+  <div class="act">${act}<span class="src" style="margin-inline-start:auto">${esc(i.source||'')}</span></div></div>`;
+}
+function renderItems(){
+  const it=visible();const c=$('#content');
+  if(!it.length){c.innerHTML='<div class="empty">אין פריטים. לחץ "רענן" לגילוי מחדש, או "רישום" להוספה ידנית.</div>';return;}
+  if(tab==='all'){
+    let html='';for(const k of Object.keys(KIND)){const g=it.filter(i=>i.kind===k);if(!g.length)continue;
+      html+=`<div class="sec"><h2>${ICON[k]} ${KIND[k]}</h2><small>${g.length}</small></div><div class="grid">${g.map(card).join('')}</div>`;}
+    c.innerHTML=html;
+  }else c.innerHTML=`<div class="grid">${it.map(card).join('')}</div>`;
+  c.querySelectorAll('[data-run]').forEach(b=>b.onclick=()=>openRunModal(b.getAttribute('data-run')));
+}
+function renderRuns(){
+  const c=$('#content');if(!S.runs.length){c.innerHTML='<div class="empty">עוד לא הופעל סקיל מהמשרד. לחץ "הפעל" על כרטיס סקיל.</div>';return;}
+  c.innerHTML='<div class="list">'+S.runs.map(r=>`<div class="row" data-id="${r.id}"><div class="hd"><span class="st ${r.status}">${r.status}</span><b>${esc(r.prompt)}</b><span class="src">${esc(r.started_at)}</span><button class="btn sm" data-log="${r.id}">לוג</button></div><div class="logbox"></div></div>`).join('')+'</div>';
+  if(!openRun&&S.runs.length){openRun=S.runs[0].id;fetch('/api/runs/'+openRun).then(r=>r.json()).then(d=>{const row=c.querySelector(`[data-id="${openRun}"] .logbox`);if(row)row.innerHTML='<pre>'+esc(d.log||'')+'</pre>';});}
+  c.querySelectorAll('[data-log]').forEach(b=>b.onclick=async()=>{const id=b.getAttribute('data-log');const row=c.querySelector(`[data-id="${id}"] .logbox`);
+    const d=await (await fetch('/api/runs/'+id)).json();row.innerHTML='<pre>'+esc(d.log||'(ריק)')+'</pre>';openRun=id;});
+}
+function renderInsights(){
+  const c=$('#content');if(!S.observations.length){c.innerHTML='<div class="empty">אין תצפיות פתוחות. סוכנים ואוטומציות מדווחים לכאן דרך POST /api/observe.</div>';return;}
+  c.innerHTML='<div class="list">'+S.observations.map(o=>`<div class="row"><div class="hd"><span class="sev ${o.severity}">${esc(o.severity)}</span><b>${esc(o.title)}</b><span class="src">${esc(o.source)} · ${esc(o.ts)}</span><button class="btn sm" data-ack="${o.id}">טופל ✓</button></div><p style="margin-top:6px;color:#3f3f46">${esc(o.body)}</p></div>`).join('')+'</div>';
+  c.querySelectorAll('[data-ack]').forEach(b=>b.onclick=async()=>{await fetch('/api/observations/'+b.getAttribute('data-ack')+'/ack',{method:'POST'});load();});
+}
+function render(){
+  counts();document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',b.getAttribute('data-tab')===tab));
+  $('#title').textContent=tab==='all'?'הכל':tab==='runs'?'ריצות':tab==='insights'?'תובנות':KIND[tab];
+  chips();
+  if(tab==='runs')renderRuns();else if(tab==='insights')renderInsights();else renderItems();
+}
+function openRunModal(slug){$('#runSlug').textContent='/'+slug;$('#runArgs').value='';$('#runModal').classList.add('on');$('#runModal').dataset.slug=slug;$('#runArgs').focus();}
+document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{tab=b.getAttribute('data-tab');tag=null;location.hash=tab;render();});
+const h=(location.hash||'').replace('#','');if(h&&(h==='all'||h==='runs'||h==='insights'||KIND[h]))tab=h;
+$('#q').oninput=e=>{q=e.target.value;render();};
+$('#refresh').onclick=async()=>{$('#refresh').textContent='...';await fetch('/api/refresh',{method:'POST'});await load();$('#refresh').textContent='🔄 רענן';};
+$('#reg').onclick=()=>$('#regModal').classList.add('on');
+$('#regClose').onclick=()=>$('#regModal').classList.remove('on');
+$('#regGo').onclick=async()=>{try{const body=JSON.parse($('#regJson').value);const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();if(d.error)alert(d.error);else{$('#regModal').classList.remove('on');load();}}catch(e){alert('JSON לא תקין: '+e.message);}};
+$('#runClose').onclick=()=>$('#runModal').classList.remove('on');
+$('#runGo').onclick=async()=>{const slug=$('#runModal').dataset.slug;const args=$('#runArgs').value;$('#runModal').classList.remove('on');
+  const d=await (await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skill:slug,args})})).json();
+  tab='runs';await load();openRun=d.id;};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('#runModal').classList.remove('on');$('#regModal').classList.remove('on');}});
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');}));
+setInterval(async()=>{if(S.runs.some(r=>r.status==='running')||tab==='runs'){await load();if(openRun&&tab==='runs'){const row=$(`[data-id="${openRun}"] .logbox`);if(row){const d=await (await fetch('/api/runs/'+openRun)).json();row.innerHTML='<pre>'+esc(d.log||'')+'</pre>';}}}},3000);
+setInterval(()=>{if(tab==='system'||tab==='all')load();},30000);
+load();
+})();
+</script>
+</body>
+</html>

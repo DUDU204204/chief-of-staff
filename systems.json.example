@@ -1,33 +1,10 @@
 {
-  "_comment": "Register your own dashboards, services, and tools here. Copy to systems.json and edit. Re-run discover.py to load.",
+  "_comment": "המערכות שהעסק רץ עליהן - מה שאין לו גילוי אוטומטי. רק שמות וכתובות, אף פעם לא סיסמאות. אחרי עריכה: לחץ רענן במשרד (או python3 discover.py). room = כללי / כספים / לקוחות / שיווק / תפעול",
   "systems": [
-    {
-      "slug": "my-crm",
-      "name": "ה-CRM שלי",
-      "category": "dashboard",
-      "description": "Pipedrive / HubSpot / Monday / etc.",
-      "url": "https://app.pipedrive.com",
-      "room": "operations",
-      "icon": "📇"
-    },
-    {
-      "slug": "local-banking-dashboard",
-      "name": "דשבורד בנקאות מקומי",
-      "category": "dashboard",
-      "description": "שרת FastAPI מקומי",
-      "url": "http://127.0.0.1:8000",
-      "port": 8000,
-      "room": "finance",
-      "icon": "🏦"
-    },
-    {
-      "slug": "google-analytics",
-      "name": "Google Analytics",
-      "category": "integration",
-      "description": "Web analytics",
-      "url": "https://analytics.google.com",
-      "room": "marketing",
-      "icon": "📊"
-    }
+    {"slug": "crm", "name": "ה-CRM שלי", "category": "integration", "description": "לידים, לקוחות, מעקב שיחות", "url": "https://app.example-crm.com", "room": "לקוחות", "icon": "📇"},
+    {"slug": "invoicing", "name": "מערכת החשבוניות", "category": "integration", "description": "חשבוניות, קבלות, דוח לרואה החשבון", "url": "https://app.example-invoices.co.il", "room": "כספים", "icon": "🧾"},
+    {"slug": "ads-manager", "name": "מנהל המודעות", "category": "integration", "description": "קמפיינים ממומנים", "url": "https://business.facebook.com", "room": "שיווק", "icon": "📣"},
+    {"slug": "projects-board", "name": "לוח הפרויקטים והמשימות", "category": "dashboard", "description": "דשבורד מקומי - עמוד המשרד, סעיף הבונוס", "url": "http://127.0.0.1:17110", "port": 17110, "room": "תפעול", "icon": "📋"},
+    {"slug": "drive", "name": "Google Drive של העסק", "category": "integration", "description": "מסמכים, גיליונות, הקלטות", "url": "https://drive.google.com", "room": "כללי", "icon": "📁"}
   ]
 }
