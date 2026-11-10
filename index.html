@@ -155,9 +155,9 @@ function card(i){
   const m=i.meta||{};const icon=m.icon||ICON[i.kind]||'▫️';
   let act='';
   if(i.kind==='skill')act=`<button class="btn primary sm" data-run="${esc(i.slug.split(':').pop())}">▶ הפעל</button>`;
-  if(i.kind==='system'){act=(m.port?`<span class="dot ${i.alive?'ok':'bad'}" title="${i.alive?'חי':'לא עונה'}"></span><span class="src">port ${m.port}</span>`:'')+(m.url?`<a class="btn sm" href="${esc(m.url)}" target="_blank" rel="noopener">פתח ↗</a>`:'');}
+  if(i.kind==='system'){act=(m.port?`<span class="dot ${i.alive?'ok':'bad'}" title="${i.alive?'חי':'לא עונה'}"></span><span class="src">port ${esc(m.port)}</span>`:'')+(/^https?:\/\//i.test(m.url||'')?`<a class="btn sm" href="${esc(m.url)}" target="_blank" rel="noopener">פתח ↗</a>`:'');}
   if(i.kind==='scheduled'&&m.next)act=`<span class="src">next: ${esc(m.next)}</span>`;
-  return `<div class="card"><div class="hd"><div class="icon">${icon}</div><div style="min-width:0"><div class="name">${esc(i.name)}</div><div class="slug">${esc(i.slug)}</div></div></div>
+  return `<div class="card"><div class="hd"><div class="icon">${esc(icon)}</div><div style="min-width:0"><div class="name">${esc(i.name)}</div><div class="slug">${esc(i.slug)}</div></div></div>
   <div class="tags">${(i.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
   <p>${esc(i.description||'')}</p>
   <div class="act">${act}<span class="src" style="margin-inline-start:auto">${esc(i.source||'')}</span></div></div>`;
@@ -181,7 +181,7 @@ function renderRuns(){
 }
 function renderInsights(){
   const c=$('#content');if(!S.observations.length){c.innerHTML='<div class="empty">אין תצפיות פתוחות. סוכנים ואוטומציות מדווחים לכאן דרך POST /api/observe.</div>';return;}
-  c.innerHTML='<div class="list">'+S.observations.map(o=>`<div class="row"><div class="hd"><span class="sev ${o.severity}">${esc(o.severity)}</span><b>${esc(o.title)}</b><span class="src">${esc(o.source)} · ${esc(o.ts)}</span><button class="btn sm" data-ack="${o.id}">טופל ✓</button></div><p style="margin-top:6px;color:#3f3f46">${esc(o.body)}</p></div>`).join('')+'</div>';
+  c.innerHTML='<div class="list">'+S.observations.map(o=>`<div class="row"><div class="hd"><span class="sev ${esc(o.severity)}">${esc(o.severity)}</span><b>${esc(o.title)}</b><span class="src">${esc(o.source)} · ${esc(o.ts)}</span><button class="btn sm" data-ack="${o.id}">טופל ✓</button></div><p style="margin-top:6px;color:#3f3f46">${esc(o.body)}</p></div>`).join('')+'</div>';
   c.querySelectorAll('[data-ack]').forEach(b=>b.onclick=async()=>{await fetch('/api/observations/'+b.getAttribute('data-ack')+'/ack',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});load();});
 }
 function render(){

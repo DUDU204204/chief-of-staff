@@ -4,13 +4,19 @@
 # הגדרה ב-~/.claude/settings.json:  {"hooks":{"PostToolUse":[{"matcher":"Write|Edit","hooks":[{"type":"command","command":"<נתיב>/office_hook.sh","args":[]}]}]}}
 set -u
 HERE="$(cd "$(dirname "$0")" && pwd)"
+# בווינדוס python3 הוא לעתים קיצור דרך לחנות ולא Python אמיתי: בודקים שהוא באמת רץ
+PY=""
+for c in python3 python py; do
+  if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys' >/dev/null 2>&1; then PY="$c"; break; fi
+done
+[ -z "$PY" ] && exit 0
 input=$(cat)
-path=$(printf '%s' "$input" | python3 -c 'import sys,json
+path=$(printf '%s' "$input" | "$PY" -c 'import sys,json
 try: print(json.load(sys.stdin).get("tool_input",{}).get("file_path",""))
 except Exception: print("")')
 case "$path" in
   *"/.claude/agents/"*|*"/.claude/skills/"*|*"/.claude/scheduled-tasks/"*|*"/systems.json"|*"/.mcp.json"|*"/.claude.json")
-    (cd "$HERE" && python3 discover.py >/dev/null 2>&1 &)
+    (cd "$HERE" && "$PY" discover.py >/dev/null 2>&1 &)
     ;;
 esac
 exit 0

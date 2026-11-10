@@ -13,6 +13,8 @@
   POST /api/register    רישום ידני (אותם שדות כמו register.py)
 
 מאזין רק ל-127.0.0.1. משתני סביבה: OFFICE_PORT (17090), OFFICE_HOME, OFFICE_BUSINESS_DIR, CLAUDE_BIN (claude).
+סקיל שמופעל מהדשבורד רץ בתיקיית העסק (discover.BUSINESS): אף פעם לא בתיקיית הבית ולא מעליה.
+חיבורי MCP מוחזרים בשם ובסוג בלבד. כתובות, פקודות וארגומנטים לא נשמרים ולא מוחזרים.
 """
 from __future__ import annotations
 
@@ -38,6 +40,12 @@ PORT = int(os.environ.get("OFFICE_PORT", "17090"))
 CLAUDE_BIN = os.environ.get("CLAUDE_BIN") or shutil.which("claude") or "claude"
 RUNS_DIR = HERE / "data" / "runs"
 RUNS_DIR.mkdir(parents=True, exist_ok=True)
+for _d in (HERE / "data", RUNS_DIR):   # הלוגים של הריצות והמסד: לבעלים בלבד
+    try:
+        os.chmod(_d, 0o700)
+    except OSError:
+        pass
+MAX_BODY = 64 * 1024
 INDEX = HERE / "index.html"
 PROBE_TTL = 20
 _probe_cache: dict[int, tuple[float, bool]] = {}
@@ -62,16 +70,31 @@ def port_alive(port: int) -> bool:
     return ok
 
 
+def _loads(text, default):
+    try:
+        v = json.loads(text or "")
+    except ValueError:
+        return default
+    return v if isinstance(v, type(default)) else default
+
+
 def state() -> dict:
     con = discover.connect()
     try:
         items = []
         for r in con.execute("SELECT * FROM items WHERE active=1 ORDER BY kind, name"):
             d = dict(r)
-            d["tags"] = json.loads(d.get("tags") or "[]")
-            d["meta"] = json.loads(d.get("meta") or "{}")
-            if d["kind"] == "system" and d["meta"].get("port"):
-                d["alive"] = port_alive(int(d["meta"]["port"]))
+            d["tags"] = _loads(d.get("tags"), [])
+            d["meta"] = _loads(d.get("meta"), {})
+            if d["kind"] == "connection":   # שם וסוג בלבד, גם אם נרשם ידנית עם יותר
+                d["meta"] = {"transport": str(d["meta"].get("transport") or "")[:20]}
+            elif d["kind"] == "scheduled":
+                d["meta"] = {k: v for k, v in d["meta"].items() if k in ("kind", "next", "schedule", "interval", "calendar")}
+            elif d["kind"] == "system":
+                d["meta"]["url"] = discover.clean_url(d["meta"].get("url"))
+                d["meta"]["port"] = discover.clean_port(d["meta"].get("port"))
+                if d["meta"]["port"]:
+                    d["alive"] = port_alive(d["meta"]["port"])
             items.append(d)
         counts = {k: v for k, v in con.execute("SELECT kind, COUNT(*) FROM items WHERE active=1 GROUP BY kind")}
         runs = [dict(r) for r in con.execute("SELECT * FROM runs ORDER BY started_at DESC LIMIT 20")]
@@ -97,7 +120,8 @@ def start_run(skill: str, args: str) -> dict:
 
     def worker():
         env = os.environ.copy()
-        env["PATH"] = "/usr/local/bin:/opt/homebrew/bin:" + env.get("PATH", "/usr/bin:/bin")
+        if os.name == "posix":   # מק ולינוקס: המקומות הרגילים של claude כשהשרת עלה בלי PATH מלא
+            env["PATH"] = os.pathsep.join(["/usr/local/bin", "/opt/homebrew/bin", env.get("PATH", "/usr/bin:/bin")])
         with open(log, "w", encoding="utf-8") as fh:
             fh.write(f"$ {prompt}\n\n")
             fh.flush()
@@ -139,7 +163,7 @@ def run_detail(run_id: str) -> dict | None:
 # ---------------------------------------------------------------- http
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):  # שקט - רק שגיאות
-        if args and str(args[1]).startswith(("4", "5")):
+        if len(args) > 1 and str(args[1]).startswith(("4", "5")):
             super().log_message(fmt, *args)
 
     def _json(self, obj, code=200):
@@ -151,14 +175,25 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _body(self) -> dict:
-        n = int(self.headers.get("Content-Length") or 0)
+    def _body(self) -> dict | None:
+        """גוף הבקשה כאובייקט JSON. None = נשלחה כבר תשובת שגיאה (גדול מדי, או לא אובייקט JSON)."""
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            n = -1
+        if n < 0 or n > MAX_BODY:
+            self._json({"error": "too large"}, 413)
+            return None
         if not n:
             return {}
         try:
-            return json.loads(self.rfile.read(n).decode("utf-8"))
+            body = json.loads(self.rfile.read(n).decode("utf-8"))
         except ValueError:
-            return {}
+            body = None
+        if not isinstance(body, dict):
+            self._json({"error": "bad json: an object is required"}, 400)
+            return None
+        return body
 
     def _local_host(self) -> bool:
         """קריאה מותרת רק כשהדפדפן פנה ל-127.0.0.1/localhost. אתר זר שמנסה DNS rebinding מגיע עם שם המתחם שלו ב-Host."""
@@ -203,15 +238,19 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         u = urlparse(self.path)
+        self.close_connection = True   # גוף שלא נקרא לא יתפרש כבקשה הבאה
         if not self._trusted():
             return self._json({"error": "forbidden: local JSON requests from the office page only"}, 403)
         body = self._body()
+        if body is None:
+            return
+        text = lambda k, d="": str(body.get(k) if body.get(k) is not None else d)  # noqa: E731
         if u.path == "/api/refresh":
             with _lock:
                 counts = discover.discover()
             self._json({"ok": True, "counts": counts, "ts": now()})
         elif u.path == "/api/run":
-            skill = (body.get("skill") or "").strip()
+            skill = text("skill").strip()
             if not skill:
                 return self._json({"error": "skill required"}, 400)
             known = set()
@@ -221,26 +260,34 @@ class Handler(BaseHTTPRequestHandler):
                     known.add(str(i.get("slug") or "").split(":")[-1])
             if skill not in known:
                 return self._json({"error": "unknown skill"}, 400)
-            self._json(start_run(skill, (body.get("args") or "").strip()))
+            self._json(start_run(skill, text("args").strip()[:4000]))
         elif u.path == "/api/observe":
             con = discover.connect()
             con.execute("INSERT INTO observations(ts, source, severity, title, body) VALUES(?,?,?,?,?)",
-                        (now(), body.get("source", "?")[:80], body.get("severity", "info")[:20],
-                         body.get("title", "")[:200], body.get("body", "")[:4000]))
+                        (now(), text("source", "?")[:80], text("severity", "info")[:20],
+                         text("title")[:200], text("body")[:4000]))
             con.commit()
             con.close()
             self._json({"ok": True})
         elif u.path.startswith("/api/observations/") and u.path.endswith("/ack"):
             oid = u.path.split("/")[3]
+            if not oid.isdigit():
+                return self._json({"error": "not found"}, 404)
             con = discover.connect()
             con.execute("UPDATE observations SET acknowledged=1 WHERE id=?", (oid,))
             con.commit()
             con.close()
             self._json({"ok": True})
         elif u.path == "/api/register":
-            kind, slug, name = body.get("kind"), body.get("slug"), body.get("name")
+            kind, slug, name = body.get("kind"), text("slug").strip()[:120], text("name").strip()[:200]
             if kind not in ("system", "scheduled", "agent", "skill", "connection") or not slug or not name:
                 return self._json({"error": "kind/slug/name required"}, 400)
+            meta = body.get("meta") if isinstance(body.get("meta"), dict) else {}
+            tags = [str(t)[:40] for t in body.get("tags")[:20]] if isinstance(body.get("tags"), list) else []
+            if "port" in meta:
+                meta["port"] = discover.clean_port(meta.get("port"))
+            if "url" in meta:
+                meta["url"] = discover.clean_url(meta.get("url"))
             con = discover.connect()
             ts = now()
             con.execute(
@@ -248,8 +295,8 @@ class Handler(BaseHTTPRequestHandler):
                    VALUES(?,?,?,?,'register','',?,?,?,?,1)
                    ON CONFLICT(kind, slug) DO UPDATE SET name=excluded.name, description=excluded.description,
                      tags=excluded.tags, meta=excluded.meta, last_seen=excluded.last_seen, active=1, source='register'""",
-                (kind, slug, name, body.get("description", ""), json.dumps(body.get("tags") or [], ensure_ascii=False),
-                 json.dumps(body.get("meta") or {}, ensure_ascii=False), ts, ts))
+                (kind, slug, name, text("description")[:600], json.dumps(tags, ensure_ascii=False),
+                 json.dumps(meta, ensure_ascii=False), ts, ts))
             con.commit()
             con.close()
             self._json({"ok": True})

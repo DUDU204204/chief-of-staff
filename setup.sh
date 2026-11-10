@@ -20,7 +20,7 @@ if command -v claude >/dev/null 2>&1; then
   echo "✓ Claude Code: $(command -v claude)"
 else
   echo "  ! claude לא נמצא ב-PATH. הגילוי עדיין יעבוד (הוא קורא קבצים), אבל כפתור 'הפעל' לא."
-  echo "    התקנה: curl -fsSL https://claude.ai/install.sh | bash"
+  echo "    הוראות התקנה רשמיות: https://claude.com/claude-code"
 fi
 
 # 3. תיקיות
