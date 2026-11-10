@@ -160,8 +160,15 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError:
             return {}
 
+    def _local_host(self) -> bool:
+        """קריאה מותרת רק כשהדפדפן פנה ל-127.0.0.1/localhost. אתר זר שמנסה DNS rebinding מגיע עם שם המתחם שלו ב-Host."""
+        host = (self.headers.get("Host") or "").rsplit(":", 1)[0].strip("[]").lower()
+        return host in {"127.0.0.1", "localhost", "::1"}
+
     def do_GET(self):
         u = urlparse(self.path)
+        if not self._local_host():
+            return self._json({"error": "forbidden: open the office at http://127.0.0.1"}, 403)
         if u.path in ("/", "/index.html"):
             body = INDEX.read_bytes()
             self.send_response(200)
@@ -181,8 +188,23 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self._json({"error": "not found"}, 404)
 
+    def _trusted(self) -> bool:
+        """הגנה מאתרים זרים (CSRF / DNS rebinding): רק הדף של המשרד עצמו או סקריפט מקומי.
+        Host חייב להיות 127.0.0.1/localhost, Origin (אם נשלח) חייב להיות המשרד עצמו,
+        וגוף הבקשה חייב להיות JSON (כותרת שדף זר לא יכול לשלוח בלי preflight, ולזה אנחנו לא עונים)."""
+        local = {f"127.0.0.1:{PORT}", f"localhost:{PORT}"}
+        if (self.headers.get("Host") or "") not in local:
+            return False
+        origin = self.headers.get("Origin")
+        if origin and origin not in {"http://" + h for h in local}:
+            return False
+        ct = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+        return ct == "application/json"
+
     def do_POST(self):
         u = urlparse(self.path)
+        if not self._trusted():
+            return self._json({"error": "forbidden: local JSON requests from the office page only"}, 403)
         body = self._body()
         if u.path == "/api/refresh":
             with _lock:
@@ -192,6 +214,13 @@ class Handler(BaseHTTPRequestHandler):
             skill = (body.get("skill") or "").strip()
             if not skill:
                 return self._json({"error": "skill required"}, 400)
+            known = set()
+            for i in state()["items"]:
+                if i.get("kind") == "skill":
+                    known.add(str(i.get("name") or ""))
+                    known.add(str(i.get("slug") or "").split(":")[-1])
+            if skill not in known:
+                return self._json({"error": "unknown skill"}, 400)
             self._json(start_run(skill, (body.get("args") or "").strip()))
         elif u.path == "/api/observe":
             con = discover.connect()

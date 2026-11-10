@@ -182,7 +182,7 @@ function renderRuns(){
 function renderInsights(){
   const c=$('#content');if(!S.observations.length){c.innerHTML='<div class="empty">אין תצפיות פתוחות. סוכנים ואוטומציות מדווחים לכאן דרך POST /api/observe.</div>';return;}
   c.innerHTML='<div class="list">'+S.observations.map(o=>`<div class="row"><div class="hd"><span class="sev ${o.severity}">${esc(o.severity)}</span><b>${esc(o.title)}</b><span class="src">${esc(o.source)} · ${esc(o.ts)}</span><button class="btn sm" data-ack="${o.id}">טופל ✓</button></div><p style="margin-top:6px;color:#3f3f46">${esc(o.body)}</p></div>`).join('')+'</div>';
-  c.querySelectorAll('[data-ack]').forEach(b=>b.onclick=async()=>{await fetch('/api/observations/'+b.getAttribute('data-ack')+'/ack',{method:'POST'});load();});
+  c.querySelectorAll('[data-ack]').forEach(b=>b.onclick=async()=>{await fetch('/api/observations/'+b.getAttribute('data-ack')+'/ack',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});load();});
 }
 function render(){
   counts();document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',b.getAttribute('data-tab')===tab));
@@ -194,7 +194,7 @@ function openRunModal(slug){$('#runSlug').textContent='/'+slug;$('#runArgs').val
 document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{tab=b.getAttribute('data-tab');tag=null;location.hash=tab;render();});
 const h=(location.hash||'').replace('#','');if(h&&(h==='all'||h==='runs'||h==='insights'||KIND[h]))tab=h;
 $('#q').oninput=e=>{q=e.target.value;render();};
-$('#refresh').onclick=async()=>{$('#refresh').textContent='...';await fetch('/api/refresh',{method:'POST'});await load();$('#refresh').textContent='🔄 רענן';};
+$('#refresh').onclick=async()=>{$('#refresh').textContent='...';await fetch('/api/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});await load();$('#refresh').textContent='🔄 רענן';};
 $('#reg').onclick=()=>$('#regModal').classList.add('on');
 $('#regClose').onclick=()=>$('#regModal').classList.remove('on');
 $('#regGo').onclick=async()=>{try{const body=JSON.parse($('#regJson').value);const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();if(d.error)alert(d.error);else{$('#regModal').classList.remove('on');load();}}catch(e){alert('JSON לא תקין: '+e.message);}};
